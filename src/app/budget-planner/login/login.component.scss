@@ -1,0 +1,93 @@
+body {
+  font-family: 'Arial', sans-serif;
+  margin: 0;
+  padding: 0;
+  background-color: #adc3ed;
+}
+
+.navbar {
+  background: linear-gradient(135deg, #4c6ef5, #b0c4ff);
+  padding: 20px 40px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: #ffffff;
+  border-radius: 10px;
+  margin: 20px;
+}
+
+.login-container {
+  max-width: 350px;
+  margin: 150px auto;
+  background-color: #bcf4f2;
+  border-radius: 15px;
+  box-shadow: 0 4px 10px rgba(14, 1, 1, 0.1);
+  padding: 50px;
+  text-align: center;
+}
+
+.login-container h2 {
+  margin-bottom: 30px;
+  font-size: 24px;
+  color: #333;
+}
+
+.form-group {
+  margin-bottom: 25px;
+}
+
+input[type="email"],
+input[type="password"],
+input[type="text"] {
+  width: 100%;
+  padding: 14px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  background-color: #fafafa;
+  font-size: 14px;
+  box-sizing: border-box;
+}
+
+input[type="email"]:focus,
+input[type="password"]:focus,
+input[type="text"]:focus {
+  border-color: #4c6ef5;
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(76, 110, 245, 0.1);
+}
+
+button {
+  width: 100%;
+  padding: 14px;
+  border: none;
+  border-radius: 8px;
+  background: linear-gradient(135deg, #4c6ef5, #7baffc);
+  color: #ffffff;
+  font-size: 16px;
+  cursor: pointer;
+  transition: background 0.3s ease;
+  box-sizing: border-box;
+  /* Ensures padding doesn't exceed width */
+  margin-bottom: 20px;
+}
+
+button:hover {
+  background: #3b5bdb;
+}
+
+p {
+  margin-top: 20px;
+  color: #666;
+  cursor: pointer;
+  transition: color 0.3s ease;
+}
+
+.highlighted {
+  color: #4c6ef5;
+  text-decoration: none;
+}
+
+.highlighted:hover {
+  color: #3b5bdb;
+  text-decoration: underline;
+}

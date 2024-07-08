@@ -1,0 +1,58 @@
+<div class="navbar">
+    <h2>EXPENSE</h2>
+</div>
+
+<div class="main-container">
+    <div class="container">
+        <h2>Expense</h2>
+        <form [formGroup]="expenseForm" (ngSubmit)="onSubmitExpense()" class="input-form">
+            <div class="form-group">
+                <select formControlName="month" id="month" class="form-control" (change)="onChangeExpense($event)">
+                    <option value="" disabled>Select Month</option>
+                    <option value="January">January</option>
+                    <option value="February">February</option>
+                    <option value="March">March</option>
+                    <option value="July">July</option>
+                </select>
+            </div>
+            <div class="total-expense">
+                Total expense for {{ selectedMonth }}: ₹{{ calculateTotalExpense() }}
+            </div>
+            <div class="form-group">
+                <label for="expenseType">Expense Type:</label>
+                <input type="text" formControlName="expenseType" id="expenseType" class="form-control"
+                    placeholder="Enter Expense Type" [class.disabled-dropdown]="!monthSelected">
+            </div>
+
+            <div class="form-group">
+                <label for="expenseAmount">Amount:</label>
+                <input type="number" formControlName="expenseAmount" id="expenseAmount" class="form-control"
+                    placeholder="Enter amount" [class.disabled-dropdown]="!monthSelected">
+            </div>
+            <button type="submit" class="btn btn-primary" [class.disabled-dropdown]="!monthSelected">Add
+                Expense</button>
+        </form>
+        <hr>
+        <h3>Expense List - {{ selectedMonth }}</h3>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Expense Type</th>
+                    <th>Amount</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr *ngFor="let expense of getFilteredExpenses()">
+                    <td>{{ expense.expenseType }}</td>
+                    <td>{{ expense.expenseAmount }}</td>
+                </tr>
+            </tbody>
+        </table>
+        <div class="input-form">
+            <button class="btn btn-primary" (click)="onBack()">Back</button>
+            <div class="form-group">
+            </div>
+            <button class="btn btn-primary" (click)="onSave()">Save</button>
+        </div>
+    </div>
+</div>

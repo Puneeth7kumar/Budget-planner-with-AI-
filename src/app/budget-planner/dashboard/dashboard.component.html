@@ -1,0 +1,107 @@
+<app-side-nav></app-side-nav>
+<div class="container">
+  <div class="card-container">
+    <!-- Income Card -->
+    <div class="card">
+      <div class="card-header">
+        <span class="icon income-icon"><mat-icon>attach_money</mat-icon></span>
+        <h2>Income</h2>
+      </div>
+      <hr>
+      <div class="income-details">
+        <div class="month">
+          <h3>Last Few Months</h3>
+          <ul>
+            <li *ngFor="let income of lastMonthsIncome">{{ income.month }}: ₹{{ income.total }}</li>
+          </ul>
+        </div>
+        <div class="month">
+          <h3>Current Month: {{ getCurrentMonth() }}</h3>
+          <p> ₹{{ totalCurrentMonthIncome }}</p>
+        </div>
+        <button class="button" (click)="onIncome()">View</button>
+      </div>
+    </div>
+
+    <!-- Expense Card -->
+    <div class="card">
+      <div class="card-header">
+        <span class="icon expense-icon"><mat-icon>money_off</mat-icon></span>
+        <h2>Expense</h2>
+      </div>
+      <hr>
+      <div class="income-details">
+        <div class="month">
+          <h3>Last Few Months</h3>
+          <ul>
+            <li *ngFor="let expense of lastMonthsExpense">{{ expense.month }}: ₹{{ expense.total }}</li>
+          </ul>
+        </div>
+        <div class="month">
+          <h3>Current Month: {{ getCurrentMonth() }}</h3>
+          <p>₹{{ totalCurrentMonthExpense }}</p>
+        </div>
+        <button class="button" (click)="onExpense()">View</button>
+      </div>
+    </div>
+    <!-- Add section for AI-driven financial insights -->
+
+    <!-- To Do Transactions -->
+    <div class="card">
+      <div class="card-header">
+        <span class="icon todo-icon"><mat-icon>assignment</mat-icon></span>
+        <h2>To Do Transactions</h2>
+      </div>
+      <hr>
+      <ul>
+        <li *ngFor="let transaction of currentMonthTodoTransactions">
+          <span class="transaction-status">
+            <mat-icon>hourglass_empty</mat-icon>
+          </span>
+          <span class="transaction-details">{{ transaction.transactionType }}: ₹{{ transaction.amount }}</span>
+        </li>
+      </ul>
+      <button class="button" (click)="onTodo()">View</button>
+    </div>
+
+    <!-- Total -->
+    <div class="card">
+      <div class="card-header">
+        <span class="icon total-icon"><mat-icon>timeline</mat-icon></span>
+        <h2>Total</h2>
+      </div>
+      <hr>
+      <div class="total-details">
+        <div class="total-item">
+          <span class="icon income-icon"><mat-icon>attach_money</mat-icon></span>
+          <h3>Current Month Income</h3>
+          <p>₹{{ totalCurrentMonthIncome }}</p>
+        </div>
+        <div class="total-item">
+          <span class="icon expense-icon"><mat-icon>money_off</mat-icon></span>
+          <h3>Current Month Expense</h3>
+          <p>₹{{ totalCurrentMonthExpense }}</p>
+        </div>
+        <hr class="total-line">
+        <div class="total-item">
+          <span class="icon trans-icon"><mat-icon>account_balance_wallet</mat-icon></span>
+          <h3>Current Month Savings</h3>
+          <p>₹{{ currentMonthSavings }}</p>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-header">
+
+        <h2>Predicted Expense</h2>
+      </div>
+      <!-- <div *ngIf="predictedExpenses !== undefined">
+        <h2>AI-Driven Financial Insights</h2>
+        <p>Predicted Expenses for {{ getCurrentMonth() }}: ₹{{ predictedExpenses }}</p>
+      </div> -->
+
+      <app-financial-insights></app-financial-insights>
+
+    </div>
+  </div>
+</div>

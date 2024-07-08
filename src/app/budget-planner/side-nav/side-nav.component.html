@@ -1,0 +1,22 @@
+<div class="navbar">
+  <h2>
+    SpendSmart
+  </h2>
+</div>
+
+<div>
+  <div class="toggle-button-row" (click)="toggleSlideOut()">
+    <mat-icon>menu</mat-icon>
+  </div>
+</div>
+
+
+<div class="slide-out-panel" [class.slide-out]="isSlideOut">
+  <div class="slide-out-content">
+    <h3 class="nav">Budget Planner</h3>
+    <p class="edit-col" (click)="onDash()">Dashboard</p>
+    <p class="edit-col" (click)="onProfile()">Profile</p>
+    <p class="edit-col" (click)="onHistory()">Prev History</p>
+    <p class="edit-col" (click)="onLogout()">Log Out</p>
+  </div>
+</div>

@@ -1,0 +1,8 @@
+<!-- financial-insights.component.html -->
+<div>
+    <h2>AI-Driven Financial Insights</h2>
+    <label for="month">Enter Month:</label>
+    <input type="text" [(ngModel)]="month" id="month" placeholder="Month (e.g., 'January')">
+    <button (click)="getPrediction()">Predict Expenses</button>
+    <p *ngIf="predictedExpenses !== null">Predicted Expenses: ₹{{ predictedExpenses }}</p>
+</div>
