@@ -1,8 +1,43 @@
-<!-- financial-insights.component.html -->
 <div>
     <h2>AI-Driven Financial Insights</h2>
-    <label for="month">Enter Month:</label>
-    <input type="text" [(ngModel)]="month" id="month" placeholder="Month (e.g., 'January')">
+
+    <!-- Predict Expenses -->
+    <div class="form-group">
+        <label for="month">Enter Month:</label>
+        <input type="text" [(ngModel)]="month" id="month" placeholder="Month (e.g., 'January')">
+    </div>
+
+    <div class="form-group">
+        <label for="income">Enter Income:</label>
+        <input type="number" [(ngModel)]="income" id="income" placeholder="Income (e.g., 2500)">
+    </div>
+
+    <div class="form-group">
+        <label for="prevExpenses">Enter Previous Month's Expenses:</label>
+        <input type="number" [(ngModel)]="prevExpenses" id="prevExpenses"
+            placeholder="Previous Month's Expenses (e.g., 2000)">
+    </div>
+
     <button (click)="getPrediction()">Predict Expenses</button>
-    <p *ngIf="predictedExpenses !== null">Predicted Expenses: ₹{{ predictedExpenses }}</p>
+    <p *ngIf="predictedExpensesRF !== null">Predicted Expenses (Random Forest): ₹{{ predictedExpensesRF }}</p>
+    <p *ngIf="predictedExpensesARIMA !== null">Predicted Expenses (ARIMA): ₹{{ predictedExpensesARIMA }}</p>
+
+    <!-- Anomaly Detection -->
+    <button (click)="detectAnomalies()">Detect Anomalies</button>
+    <div *ngIf="anomalies.length">
+        <h3>Anomalies Detected:</h3>
+        <ul>
+            <li *ngFor="let anomaly of anomalies">{{ anomaly }}</li>
+        </ul>
+    </div>
+    <div *ngIf="!anomalies.length && anomalies !== null">
+        <p>No anomalies detected.</p>
+    </div>
+
+    <!-- Financial Advice -->
+    <button (click)="getFinancialAdvice()">Get Financial Advice</button>
+    <div *ngIf="financialAdvice">
+        <h3>Financial Advice:</h3>
+        <p>{{ financialAdvice }}</p>
+    </div>
 </div>

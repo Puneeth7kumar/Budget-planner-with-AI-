@@ -1,0 +1,13 @@
+month,income,expenses,month_num,prev_expenses
+January,2000,1500,1,0.0
+February,2100,1600,2,1500.0
+March,2200,1550,3,1600.0
+April,2300,1700,4,1550.0
+May,2400,1750,5,1700.0
+June,2500,1650,6,1750.0
+July,2600,1800,7,1650.0
+August,2700,1900,8,1800.0
+September,2800,1850,9,1900.0
+October,2900,2000,10,1850.0
+November,3000,2100,11,2000.0
+December,3100,1950,12,2100.0

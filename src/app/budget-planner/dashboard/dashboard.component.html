@@ -8,7 +8,7 @@
         <h2>Income</h2>
       </div>
       <hr>
-      <div class="income-details">
+      <div class="details">
         <div class="month">
           <h3>Last Few Months</h3>
           <ul>
@@ -30,7 +30,7 @@
         <h2>Expense</h2>
       </div>
       <hr>
-      <div class="income-details">
+      <div class="details">
         <div class="month">
           <h3>Last Few Months</h3>
           <ul>
@@ -44,7 +44,6 @@
         <button class="button" (click)="onExpense()">View</button>
       </div>
     </div>
-    <!-- Add section for AI-driven financial insights -->
 
     <!-- To Do Transactions -->
     <div class="card">
@@ -74,34 +73,40 @@
       <div class="total-details">
         <div class="total-item">
           <span class="icon income-icon"><mat-icon>attach_money</mat-icon></span>
-          <h3>Current Month Income</h3>
+          <h3>Current Month Income : </h3>
           <p>₹{{ totalCurrentMonthIncome }}</p>
         </div>
         <div class="total-item">
           <span class="icon expense-icon"><mat-icon>money_off</mat-icon></span>
-          <h3>Current Month Expense</h3>
+          <h3>Current Month Expense : </h3>
           <p>₹{{ totalCurrentMonthExpense }}</p>
         </div>
         <hr class="total-line">
         <div class="total-item">
           <span class="icon trans-icon"><mat-icon>account_balance_wallet</mat-icon></span>
-          <h3>Current Month Savings</h3>
+          <h3>Current Month Savings : </h3>
           <p>₹{{ currentMonthSavings }}</p>
         </div>
       </div>
     </div>
+
+    <!-- Predicted Expense -->
     <div class="card">
       <div class="card-header">
-
         <h2>Predicted Expense</h2>
       </div>
-      <!-- <div *ngIf="predictedExpenses !== undefined">
+      <div *ngIf="predictedExpenses !== undefined">
+
+        <h4>Predicted Expenses for {{ getCurrentMonth() }}: ₹{{ predictedExpenses }}</h4>
+      </div>
+    </div>
+
+    <!-- AI-Driven Financial Insights -->
+    <div class="card">
+      <div class="card-header">
         <h2>AI-Driven Financial Insights</h2>
-        <p>Predicted Expenses for {{ getCurrentMonth() }}: ₹{{ predictedExpenses }}</p>
-      </div> -->
-
+      </div>
       <app-financial-insights></app-financial-insights>
-
     </div>
   </div>
 </div>

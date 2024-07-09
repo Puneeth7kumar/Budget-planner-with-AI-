@@ -6,11 +6,19 @@ import { Observable } from 'rxjs';
   providedIn: 'root'
 })
 export class FinancialInsightsService {
-  private apiUrl = 'http://127.0.0.1:5000/predict';
+  private baseUrl = 'http://localhost:5000';  // Your Flask API base URL
 
   constructor(private http: HttpClient) { }
 
-  predictExpenses(month: string): Observable<any> {
-    return this.http.post<any>(this.apiUrl, { month });
+  predictExpenses(month: string, income: number, prevExpenses: number): Observable<any> {
+    return this.http.post<any>(`${this.baseUrl}/predict`, { month, income, prevExpenses });
+  }
+
+  detectAnomalies(): Observable<any> {
+    return this.http.get<any>(`${this.baseUrl}/anomalies`);
+  }
+
+  getFinancialAdvice(): Observable<any> {
+    return this.http.get<any>(`${this.baseUrl}/advice`);
   }
 }

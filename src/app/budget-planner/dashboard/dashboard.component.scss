@@ -1,8 +1,16 @@
+/* Base styles */
+body {
+  font-family: 'Roboto', sans-serif;
+  background-color: #94b4f3;
+  margin: 0;
+  padding: 0;
+  color: #333;
+}
+
 .container {
   display: flex;
   justify-content: center;
-  margin-top: 20px;
-  //background-color: #d0d4ee;
+  padding: 20px;
 }
 
 .card-container {
@@ -10,24 +18,24 @@
   flex-wrap: wrap;
   justify-content: center;
   gap: 20px;
-  width: calc(100% - 40px);
+  width: 100%;
   max-width: 1200px;
 }
 
 .card {
   position: relative;
-  background-color: #c1f5f8;
-  border-radius: 10px;
-  box-shadow: 0px 0px 15px rgba(21, 16, 16, 0.1);
+  background-color: #fff;
+  border-radius: 12px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
   padding: 20px;
-  width: calc(50% - 40px);
+  width: calc(50% - 20px);
   max-width: 400px;
-  transition: transform 0.3s ease;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
 .card:hover {
-  transform: translateY(-7px);
-  box-shadow: 0px 0px 20px rgba(0, 0, 0, 0.2);
+  transform: translateY(-5px);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
 }
 
 .card-header {
@@ -47,94 +55,59 @@
 
 h2 {
   color: #333;
-  font-size: 22px;
+  font-size: 24px;
   margin: 0;
 }
 
-.card-header .icon {
-  transition: background-color 0.3s ease;
+.details h3,
+.total-item h3,
+.total-item p,
+.details p {
+  margin: 10px 0;
 }
 
-.card:hover .icon {
-  background-color: #ccc;
+.details ul,
+.details p {
+  margin: 10px 0;
 }
 
-.income-icon {
-  background-color: #e2ce9c;
-}
-
-.expense-icon {
-  background-color: #be7886;
-}
-
-.todo-icon {
-  background-color: #87dcdc;
-}
-
-.trans-icon {
-  background-color: #f1afd9;
-}
-
-.total-icon {
-  background-color: #8dcda9;
-}
-
-.total-item {
-  display: flex;
-  align-items: center;
-  margin-bottom: 5px;
-}
-
-.total-item p {
-  margin-left: 10px;
-}
-
-h3 {
-  color: #555;
-  font-size: 16px;
-  margin: 0;
-}
-
-p {
-  color: #333;
-  font-size: 14px;
-  margin: 0;
-}
-
-ul {
+.details ul {
   list-style: none;
   padding: 0;
 }
 
-.transaction-status {
-  display: inline-block;
-  width: 20px;
-  height: 20px;
-  text-align: center;
+.details ul li,
+.transaction-details {
+  font-size: 16px;
+  margin: 5px 0;
 }
 
 .transaction-status mat-icon {
-  display: inline-block;
-  /* Make sure the icon and text are inline */
-  vertical-align: middle;
-  /* Align vertically to middle */
   font-size: 20px;
   color: #4caf50;
 }
 
 .transaction-details {
-  margin-left: 10px;
-  font-size: 16px;
-  color: #333;
+  display: inline-block;
+  vertical-align: middle;
 }
 
-.transaction-details.completed {
-  text-decoration: line-through;
+.total-item {
+  display: flex;
+  align-items: center;
 }
 
-.mat-icon {
-  font-size: 24px;
-  color: #fff;
+.total-item .icon {
+  margin: 0 10px 0 0;
+}
+
+.total-item p {
+  margin: 0;
+}
+
+.total-line {
+  border-top: 1px solid #ddd;
+  margin: 20px 0;
 }
 
 .button {
@@ -144,12 +117,52 @@ ul {
   padding: 10px 20px;
   border: none;
   border-radius: 5px;
-  background: linear-gradient(135deg, #8898f4, #80ced6);
+  background: linear-gradient(135deg, #6a11cb, #2575fc);
   color: white;
   cursor: pointer;
   transition: background-color 0.3s ease;
 }
 
 .button:hover {
-  background: #80ced6;
+  background: #2575fc;
+}
+
+/* Icon backgrounds */
+.income-icon {
+  background-color: #ffcc80;
+}
+
+.expense-icon {
+  background-color: #ffab91;
+}
+
+.todo-icon {
+  background-color: #80cbc4;
+}
+
+.trans-icon {
+  background-color: #e1bee7;
+}
+
+.total-icon {
+  background-color: #aed581;
+}
+
+/* Responsive styles */
+@media (max-width: 768px) {
+  .card {
+    width: 100%;
+    max-width: none;
+    margin: 10px 0;
+  }
+
+  .button {
+    position: static;
+    width: 100%;
+    text-align: center;
+  }
+
+  .transaction-details {
+    display: block;
+  }
 }

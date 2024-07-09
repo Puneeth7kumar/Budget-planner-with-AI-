@@ -4,7 +4,6 @@ import { Component } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { FinancialInsightsService } from '../financial-insights.service';
 
-
 @Component({
   selector: 'app-financial-insights',
   templateUrl: './financial-insights.component.html',
@@ -14,15 +13,33 @@ import { FinancialInsightsService } from '../financial-insights.service';
 })
 export class FinancialInsightsComponent {
   month: string = '';
-  predictedExpenses: number | null = null;
+  income: number | null = null;
+  prevExpenses: number | null = null;
+  predictedExpensesRF: number | null = null;
+  predictedExpensesARIMA: number | null = null;
+  anomalies: string[] = [];
+  financialAdvice: string | null = null;
 
   constructor(private financialInsightsService: FinancialInsightsService) { }
 
   getPrediction() {
-    if (this.month) {
-      this.financialInsightsService.predictExpenses(this.month).subscribe(data => {
-        this.predictedExpenses = data.predicted_expenses;
+    if (this.month && this.income !== null && this.prevExpenses !== null) {
+      this.financialInsightsService.predictExpenses(this.month, this.income, this.prevExpenses).subscribe(data => {
+        this.predictedExpensesRF = data.predicted_expenses_rf;
+        this.predictedExpensesARIMA = data.predicted_expenses_arima;
       });
     }
+  }
+
+  detectAnomalies() {
+    this.financialInsightsService.detectAnomalies().subscribe(data => {
+      this.anomalies = data.anomalies;
+    });
+  }
+
+  getFinancialAdvice() {
+    this.financialInsightsService.getFinancialAdvice().subscribe(data => {
+      this.financialAdvice = data.advice;
+    });
   }
 }
