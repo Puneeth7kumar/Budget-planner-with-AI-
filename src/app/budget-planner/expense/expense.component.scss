@@ -8,10 +8,10 @@ body {
 
 .main-container {
     background-color: #ffffff;
-    padding: 30px;
+    padding: 20px;
     border-radius: 10px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    margin-top: 20px;
+    margin: 20px;
 }
 
 .container {
@@ -22,7 +22,7 @@ body {
 
 .input-form {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    grid-template-columns: 1fr;
     grid-gap: 20px;
     margin-bottom: 30px;
 }
@@ -124,4 +124,10 @@ body {
     margin: 20px auto;
     font-size: 18px;
     font-weight: 600;
+}
+
+@media (min-width: 768px) {
+    .input-form {
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    }
 }

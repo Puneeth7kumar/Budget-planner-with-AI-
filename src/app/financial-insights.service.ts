@@ -6,7 +6,7 @@ import { Observable } from 'rxjs';
   providedIn: 'root'
 })
 export class FinancialInsightsService {
-  private baseUrl = 'http://localhost:5000';  // Your Flask API base URL
+  private baseUrl = 'https://1440-103-141-113-225.ngrok-free.app';  // Your Flask API base URL
 
   constructor(private http: HttpClient) { }
 
@@ -20,5 +20,16 @@ export class FinancialInsightsService {
 
   getFinancialAdvice(): Observable<any> {
     return this.http.get<any>(`${this.baseUrl}/advice`);
+  }
+  updateIncomeOrExpenseFromSMS(message: string, phoneNumber: string): Observable<any> {
+    const smsData = { Body: message, From: phoneNumber };
+    return this.http.post(`${this.baseUrl}/sms`, smsData);
+  }
+  getIncomes(): Observable<any> {
+    return this.http.get(`${this.baseUrl}/incomes`);
+  }
+
+  getExpenses(): Observable<any> {
+    return this.http.get(`${this.baseUrl}/expenses`);
   }
 }

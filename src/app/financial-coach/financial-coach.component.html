@@ -1,0 +1,6 @@
+<div>
+    <input [(ngModel)]="userQuery" placeholder="Ask a financial question">
+    <button (click)="getAdvice()">Get Advice</button>
+    <p *ngIf="advice">{{ advice }}</p>
+    <button (click)="startVoiceRecognition()">Speak</button>
+</div>

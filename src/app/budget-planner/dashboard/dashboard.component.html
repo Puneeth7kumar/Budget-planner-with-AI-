@@ -108,5 +108,25 @@
       </div>
       <app-financial-insights></app-financial-insights>
     </div>
+    <div class="card">
+      <div class="card-header">
+        <h2>AI-Driven Financial Coach</h2>
+      </div>
+      <app-financial-coach></app-financial-coach>
+    </div>
+    <!-- <div>
+      <h2>Dashboard</h2>
+      <p>Total Income: {{ income1 }}</p>
+      <p>Total Expenses: {{ expenses }}</p>
+    </div> -->
+    <div class="latest-updates">
+      <h3>Latest Updates</h3>
+      <div *ngIf="latestIncome !== undefined">
+        <p>Latest Income: {{ latestIncome }}</p>
+      </div>
+      <div *ngIf="latestExpense !== undefined">
+        <p>Latest Expense: {{ latestExpense}}</p>
+      </div>
+    </div>
   </div>
 </div>

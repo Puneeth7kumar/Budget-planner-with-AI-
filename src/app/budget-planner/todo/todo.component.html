@@ -8,7 +8,7 @@
         <form [formGroup]="todoForm" (ngSubmit)="onSubmitTransaction()" class="input-form">
             <div class="form-group">
                 <select formControlName="month" id="month" class="form-control" (change)="onChangeMonth($event)">
-                    <option value="" disabled>Select Month</option>
+                    <option value="" disabled selected>Select Month</option>
                     <option value="January">January</option>
                     <option value="February">February</option>
                     <option value="March">March</option>

@@ -1,3 +1,4 @@
+import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
 @Injectable({
@@ -52,13 +53,27 @@ export class BudgetService {
   private incomeSubject = new BehaviorSubject<{ [key: string]: any[] }>(this.incomes);
   private expenseSubject = new BehaviorSubject<{ [key: string]: any[] }>(this.expenses);
   private todoTransactionSubject = new BehaviorSubject<{ [key: string]: any[] }>(this.todoTransactions);
+  private latestIncomeSubject = new BehaviorSubject<number | undefined>(undefined);
+  private latestExpenseSubject = new BehaviorSubject<number | undefined>(undefined);
 
   income$ = this.incomeSubject.asObservable();
   expense$ = this.expenseSubject.asObservable();
   todoTransaction$ = this.todoTransactionSubject.asObservable();
 
+  latestIncome$ = this.latestIncomeSubject.asObservable();
+  latestExpense$ = this.latestExpenseSubject.asObservable();
+
+  constructor(private http: HttpClient) { }
+  fetchLatestData() {
+    this.http.get<{ latestIncome: number, latestExpense: number }>('https://1440-103-141-113-225.ngrok-free.app/latest-data')
+      .subscribe(data => {
+        this.latestIncomeSubject.next(data.latestIncome);
+        this.latestExpenseSubject.next(data.latestExpense);
+      });
+  }
   getIncomesForMonth(month: string): any[] {
     return this.incomes[month] || [];
+
   }
 
   addIncome(month: string, income: any): void {

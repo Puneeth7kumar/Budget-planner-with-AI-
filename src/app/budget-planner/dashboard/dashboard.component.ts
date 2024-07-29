@@ -6,13 +6,17 @@ import { FinancialInsightsComponent } from '../../financial-insights/financial-i
 import { SideNavComponent } from '../side-nav/side-nav.component';
 import { MatIconModule } from '@angular/material/icon';
 import { CommonModule } from '@angular/common';
+import { HttpClient, HttpClientModule } from '@angular/common/http';
+import { FinancialCoachComponent } from '../../financial-coach/financial-coach.component';
+import { FinancialCoachService } from '../../financial-coach.service';
+import { BudgetPlannerModule } from '../budget-planner.module';
 
 @Component({
   selector: 'app-dashboard',
-  standalone: true,
+  // standalone: true,
   templateUrl: './dashboard.component.html',
   styleUrls: ['./dashboard.component.scss'],
-  imports: [CommonModule, MatIconModule, SideNavComponent, FinancialInsightsComponent]
+  //imports: [CommonModule, MatIconModule, SideNavComponent, FinancialInsightsComponent, HttpClientModule, FinancialCoachComponent]
 })
 export class DashboardComponent implements OnInit {
   lastMonthsIncome: { month: string, total: number }[] = [];
@@ -25,15 +29,45 @@ export class DashboardComponent implements OnInit {
   predictedExpenses: number | undefined;
   anomalies: string[] = [];
   financialAdvice: string | undefined;
+  new_financial_advice: string | undefined;
 
-  constructor(public router: Router, private budgetService: BudgetService, private financialInsightsService: FinancialInsightsService) { }
+  latestIncome: number | undefined;
+  latestExpense: number | undefined;
+  //new adding here
+  // income1: number = 0;
+  // expenses1: number = 0;
+  // currentMonth1: string = 'July';
+
+  constructor(public router: Router, private FinancialCoachService: FinancialCoachService, private budgetService: BudgetService, private financialInsightsService: FinancialInsightsService, private http: HttpClient) { }
 
   ngOnInit() {
     this.initializeDashboard();
     this.budgetService.income$.subscribe(() => this.updateCurrentMonthTotals());
     this.budgetService.expense$.subscribe(() => this.updateCurrentMonthTotals());
     this.budgetService.todoTransaction$.subscribe(() => this.updateCurrentMonthTodoTransactions());
+
+
+    this.budgetService.latestIncome$.subscribe(income => {
+      this.latestIncome = income;
+    });
+
+    this.budgetService.latestExpense$.subscribe(expense => {
+      this.latestExpense = expense;
+    });
+
+    this.budgetService.fetchLatestData();
+
+    this.financialInsightsService.getIncomes().subscribe(data => {
+      console.log('Incomes:', data);
+    });
+
+    this.financialInsightsService.getExpenses().subscribe(data => {
+      console.log('Expenses:', data);
+    });
   }
+  // updateIncome(): void {
+  //   this.income1 = this.budgetService.getTotalIncomeForMonth1(this.currentMonth1);
+  // }
 
   initializeDashboard() {
     this.populateLastMonthsIncome();
@@ -43,6 +77,7 @@ export class DashboardComponent implements OnInit {
     this.getPredictedExpenses();
     this.detectAnomalies();
     this.getFinancialAdvice();
+    this.getFinancialAdvice1();
   }
 
   populateLastMonthsIncome() {
@@ -104,6 +139,11 @@ export class DashboardComponent implements OnInit {
       this.financialAdvice = data.advice;
     });
   }
+  getFinancialAdvice1() {
+    this.FinancialCoachService.getFinancialAdvice1().subscribe(data => {
+      this.new_financial_advice = data.advice;
+    });
+  }
 
   get totalCurrentMonthIncome(): number {
     return this.currentMonthIncome;
@@ -132,5 +172,14 @@ export class DashboardComponent implements OnInit {
 
   onTodo() {
     this.router.navigate(['/budget-planner/todo']);
+  }
+  updateIncome(amount: number) {
+    this.latestIncome = amount;
+    this.updateCurrentMonthTotals();
+  }
+
+  updateExpense(amount: number) {
+    this.latestExpense = amount;
+    this.updateCurrentMonthTotals();
   }
 }

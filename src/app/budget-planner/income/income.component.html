@@ -8,7 +8,7 @@
         <form [formGroup]="incomeForm" (ngSubmit)="onSubmit()" class="input-form">
             <div class="form-group">
                 <select formControlName="month" id="month" class="form-control" (change)="onChange($event)">
-                    <option value="" disabled>Select Month</option>
+                    <option value="" disabled selected>Select Month</option>
                     <option value="January">January</option>
                     <option value="February">February</option>
                     <option value="March">March</option>
@@ -22,7 +22,7 @@
                 <label for="source">Source of Income:</label>
                 <select formControlName="source" id="source" class="form-control"
                     [class.disabled-dropdown]="!monthSelected">
-                    <option value="" disabled>Select Source</option>
+                    <option value="" disabled selected>Select Source</option>
                     <option value="Salary">Salary</option>
                     <option value="Freelancing">Freelancing</option>
                     <option value="Rental Income">Rental Income</option>
@@ -37,7 +37,7 @@
                 <label for="investments">Investments:</label>
                 <select formControlName="investments" id="investments" class="form-control"
                     [class.disabled-dropdown]="!monthSelected">
-                    <option value="" disabled>Select Investments</option>
+                    <option value="" disabled selected>Select Investments</option>
                     <option value="401(k)">401(k)</option>
                     <option value="Stocks">Stocks</option>
                     <option value="Real Estate">Real Estate</option>
