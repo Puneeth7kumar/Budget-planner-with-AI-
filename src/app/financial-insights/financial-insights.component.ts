@@ -1,8 +1,9 @@
 import { CommonModule } from '@angular/common';
 import { HttpClientModule } from '@angular/common/http';
 import { Component } from '@angular/core';
-import { FormsModule } from '@angular/forms';
+
 import { FinancialInsightsService } from '../financial-insights.service';
+import { FormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-financial-insights',

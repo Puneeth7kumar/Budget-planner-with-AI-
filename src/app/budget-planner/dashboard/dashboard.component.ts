@@ -24,13 +24,17 @@ export class DashboardComponent implements OnInit {
 
   lastMonthsExpense: { month: string, total: number }[] = [];
   currentMonthExpense: number = 0;
+  lastMonthsLoans: { month: string, total: number }[] = [];
+  currentMonthLoan: number = 0;
 
   currentMonthTodoTransactions: any[] = [];
   predictedExpenses: number | undefined;
   anomalies: string[] = [];
   financialAdvice: string | undefined;
   new_financial_advice: string | undefined;
+  previousYearSavings: number = 50000;
 
+  usedPreviousSavings: number = 0;
   latestIncome: number | undefined;
   latestExpense: number | undefined;
   //new adding here
@@ -73,6 +77,7 @@ export class DashboardComponent implements OnInit {
     this.populateLastMonthsIncome();
     this.populateLastMonthsExpense();
     this.updateCurrentMonthTotals();
+    this.populateLastMonthsLoans();
     this.updateCurrentMonthTodoTransactions();
     this.getPredictedExpenses();
     this.detectAnomalies();
@@ -95,11 +100,20 @@ export class DashboardComponent implements OnInit {
       total: this.budgetService.getTotalExpenseForMonth(month)
     }));
   }
+  populateLastMonthsLoans() {
+    const months = ['January', 'February', 'March']; // Add more months as needed
+    this.lastMonthsLoans = months.map(month => ({
+      month,
+      total: this.budgetService.getTotalLoanForMonth(month)
+    }));
+  }
 
   updateCurrentMonthTotals() {
     const currentMonth = this.getCurrentMonth();
     this.currentMonthIncome = this.budgetService.getTotalIncomeForMonth(currentMonth);
     this.currentMonthExpense = this.budgetService.getTotalExpenseForMonth(currentMonth);
+    const loans = this.budgetService.getLoansForMonth(currentMonth);
+    this.currentMonthLoan = loans.reduce((total, loan) => total + loan.amount, 0);
   }
 
   updateCurrentMonthTodoTransactions() {
@@ -152,10 +166,26 @@ export class DashboardComponent implements OnInit {
   get totalCurrentMonthExpense(): number {
     return this.currentMonthExpense;
   }
-
-  get currentMonthSavings(): number {
-    return this.totalCurrentMonthIncome - this.totalCurrentMonthExpense;
+  get totalCurrentMonthLoan(): number {
+    return this.currentMonthLoan;
   }
+
+  // get currentMonthSavings(): number {
+  //   return this.totalCurrentMonthIncome - this.totalCurrentMonthExpense;
+  // }
+  get currentMonthSavings(): number {
+    const savings = this.totalCurrentMonthIncome - this.totalCurrentMonthExpense;
+
+    if (savings < 0 && this.previousYearSavings > 0) {
+      this.usedPreviousSavings = Math.abs(savings) > this.previousYearSavings ? this.previousYearSavings : Math.abs(savings);
+      return this.previousYearSavings - this.usedPreviousSavings;
+    } else {
+      this.usedPreviousSavings = 0;
+    }
+
+    return savings;
+  }
+
 
   getCurrentMonth(): string {
     const currentDate = new Date();
@@ -172,6 +202,9 @@ export class DashboardComponent implements OnInit {
 
   onTodo() {
     this.router.navigate(['/budget-planner/todo']);
+  }
+  onLoan() {
+    this.router.navigate(['/budget-planner/loan']);
   }
   updateIncome(amount: number) {
     this.latestIncome = amount;

@@ -1,0 +1,77 @@
+<div class="loan-container">
+    <h2>Add Loan for {{ currentMonth }}</h2>
+    <form [formGroup]="loanForm" (ngSubmit)="onSubmit()">
+        <div class="form-group">
+            <label for="loanType">Loan Type:</label>
+            <select formControlName="loanType" id="loanType" required>
+                <option value="" disabled selected>Select loan type</option>
+                <option *ngFor="let type of loanTypes" [value]="type">{{ type }}</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="amount">Loan Amount:</label>
+            <input type="number" formControlName="amount" id="amount" required>
+        </div>
+        <div class="form-group">
+            <label for="interestRate">Interest Rate (%):</label>
+            <input type="number" formControlName="interestRate" id="interestRate" required>
+        </div>
+        <div class="form-group">
+            <label for="term">Term (months):</label>
+            <input type="number" formControlName="term" id="term" required>
+        </div>
+        <div class="form-group">
+            <label for="income">Income:</label>
+            <input type="number" formControlName="income" id="income" required>
+        </div>
+        <div class="form-group">
+            <label for="existingCreditScore">Existing Credit Score:</label>
+            <input type="number" formControlName="existingCreditScore" id="existingCreditScore" required>
+        </div>
+        <div class="form-group">
+            <label for="employmentStatus">Employment Status:</label>
+            <select formControlName="employmentStatus" id="employmentStatus" required>
+                <option value="" disabled selected>Select employment status</option>
+                <option value="Full-Time">Full-Time</option>
+                <option value="Part-Time">Part-Time</option>
+                <option value="Unemployed">Unemployed</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="documents">Upload Documents:</label>
+            <input type="file" id="documents" (change)="onFileChange($event)" required>
+        </div>
+        <!-- <div class="form-group">
+            <label for="disbursementMethod">Disbursement Method:</label>
+            <select formControlName="disbursementMethod" id="disbursementMethod" required>
+                <option value="" disabled selected>Select disbursement method</option>
+                <option *ngFor="let method of disbursementMethods" [value]="method">{{ method }}</option>
+            </select>
+        </div> -->
+        <button type="submit" class="btn btn-primary">Add Loan</button>
+    </form>
+
+    <div *ngIf="isApproved; else rejectionMessage">
+        <h2>Loans for {{ currentMonth }}</h2>
+        <ul *ngIf="loans[currentMonth] && loans[currentMonth].length > 0; else noLoans">
+            <li *ngFor="let loan of loans[currentMonth]">
+                Amount: {{ loan.amount }} - Interest Rate: {{ loan.interestRate }}% - Term: {{ loan.term }} months -
+                Type: {{
+                loan.loanType }} - EMI: {{ loan.emi }}
+            </li>
+        </ul>
+        <ng-template #noLoans>
+            <p>No loans for {{ currentMonth }}</p>
+        </ng-template>
+
+        <h3>Repayment Schedule</h3>
+        <ul>
+            <li *ngFor="let payment of repaymentSchedule">
+                Date: {{ payment.date }} - Amount:₹{{ payment.amount}}
+            </li>
+        </ul>
+    </div>
+    <ng-template #rejectionMessage>
+        <p>Your loan application was rejected based on your credit score: {{ creditScore }}</p>
+    </ng-template>
+</div>

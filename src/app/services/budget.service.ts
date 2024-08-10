@@ -1,6 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
+import { Loan } from '../models/loan.model';
 @Injectable({
   providedIn: 'root',
 })
@@ -50,16 +51,19 @@ export class BudgetService {
       { transactionType: 'Miscellaneous', amount: 50 },
     ],
   };
+
+  private loans: { [key: string]: Loan[] } = {};
+
   private incomeSubject = new BehaviorSubject<{ [key: string]: any[] }>(this.incomes);
   private expenseSubject = new BehaviorSubject<{ [key: string]: any[] }>(this.expenses);
   private todoTransactionSubject = new BehaviorSubject<{ [key: string]: any[] }>(this.todoTransactions);
   private latestIncomeSubject = new BehaviorSubject<number | undefined>(undefined);
   private latestExpenseSubject = new BehaviorSubject<number | undefined>(undefined);
-
+  private loanSubject = new BehaviorSubject<{ [key: string]: Loan[] }>(this.loans);
   income$ = this.incomeSubject.asObservable();
   expense$ = this.expenseSubject.asObservable();
   todoTransaction$ = this.todoTransactionSubject.asObservable();
-
+  loan$ = this.loanSubject.asObservable();
   latestIncome$ = this.latestIncomeSubject.asObservable();
   latestExpense$ = this.latestExpenseSubject.asObservable();
 
@@ -119,4 +123,26 @@ export class BudgetService {
     this.todoTransactions[month].push(transaction);
     this.todoTransactionSubject.next(this.todoTransactions);
   }
+  getLoansForMonth(month: string): Loan[] {
+    return this.loans[month] || [];
+  }
+
+  addLoan(month: string, loan: Loan): void {
+    if (!this.loans[month]) {
+      this.loans[month] = [];
+    }
+    loan.emi = this.calculateEMI(loan.amount, loan.interestRate, loan.term);
+    this.loans[month].push(loan);
+    this.loanSubject.next(this.loans);
+  }
+
+  getTotalLoanForMonth(month: string): number {
+    return this.getLoansForMonth(month).reduce((total, loan) => total + loan.amount, 0);
+  }
+
+  private calculateEMI(amount: number, interestRate: number, term: number): number {
+    let monthlyRate = interestRate / (12 * 100);
+    return (amount * monthlyRate * Math.pow(1 + monthlyRate, term)) / (Math.pow(1 + monthlyRate, term) - 1);
+  }
+
 }

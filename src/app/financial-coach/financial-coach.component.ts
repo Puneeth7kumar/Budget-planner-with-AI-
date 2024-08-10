@@ -1,8 +1,9 @@
 import { Component } from '@angular/core';
 import { FinancialCoachService } from '../financial-coach.service';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
+
 import { HttpClientModule } from '@angular/common/http';
+import { FormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-financial-coach',

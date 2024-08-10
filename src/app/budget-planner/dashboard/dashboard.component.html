@@ -44,6 +44,26 @@
         <button class="button" (click)="onExpense()">View</button>
       </div>
     </div>
+    <div class="card">
+      <div class="card-header">
+        <span class="icon loan-icon"><mat-icon>account_balance_wallet</mat-icon></span>
+        <h2>Loans</h2>
+      </div>
+      <hr>
+      <div class="details">
+        <div class="month">
+          <h3>Last Few Months</h3>
+          <ul>
+            <li *ngFor="let loan of lastMonthsLoans">{{ loan.month }}: ₹{{ loan.total }}</li>
+          </ul>
+        </div>
+        <div class="month">
+          <h3>Current Month: {{ getCurrentMonth() }}</h3>
+          <p>₹{{ totalCurrentMonthLoan }}</p>
+        </div>
+        <button class="button" (click)="onLoan()">View</button>
+      </div>
+    </div>
 
     <!-- To Do Transactions -->
     <div class="card">
@@ -84,9 +104,22 @@
         <hr class="total-line">
         <div class="total-item">
           <span class="icon trans-icon"><mat-icon>account_balance_wallet</mat-icon></span>
-          <h3>Current Month Savings : </h3>
+          <h3>Current Month Savings: </h3>
           <p>₹{{ currentMonthSavings }}</p>
+
+
+          <!-- <div class="tooltip">
+            <mat-icon>info</mat-icon>
+            <span class="tooltiptext">Savings from previous years were used due to high expenses this month.</span>
+          </div> -->
         </div>
+
+      </div>
+      <div *ngIf="usedPreviousSavings > 0" class="alert alert-warning">
+        <mat-icon>warning</mat-icon>
+        <!-- <strong>Notice:</strong> -->
+        Your expenses exceeded your income this month.
+        ₹{{ usedPreviousSavings }} was deducted from your previous year's savings.
       </div>
     </div>
 

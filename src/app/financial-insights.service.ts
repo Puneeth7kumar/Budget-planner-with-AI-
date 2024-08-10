@@ -6,7 +6,7 @@ import { Observable } from 'rxjs';
   providedIn: 'root'
 })
 export class FinancialInsightsService {
-  private baseUrl = 'https://1440-103-141-113-225.ngrok-free.app';  // Your Flask API base URL
+  private baseUrl = 'http://localhost:5000';  // Your Flask API base URL
 
   constructor(private http: HttpClient) { }
 
