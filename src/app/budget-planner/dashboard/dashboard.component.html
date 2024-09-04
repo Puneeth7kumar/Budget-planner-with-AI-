@@ -152,14 +152,27 @@
       <p>Total Income: {{ income1 }}</p>
       <p>Total Expenses: {{ expenses }}</p>
     </div> -->
-    <div class="latest-updates">
-      <h3>Latest Updates</h3>
-      <div *ngIf="latestIncome !== undefined">
-        <p>Latest Income: {{ latestIncome }}</p>
+    <div class="card">
+      <div class="card-header">
+        <div class="email-list-container" *ngIf="latestEmails.length">
+          <h3 class="email-list-title">Latest Emails</h3>
+          <ul class="email-list">
+            <li *ngFor="let email of latestEmails" class="email-list-item">
+              <div class="email-header">
+                <strong class="email-from">{{ email.from }}</strong>
+                <span class="email-subject">{{ email.subject }}</span>
+              </div>
+              <div class="email-body">
+                <span class="email-amount">{{ email.amount }}</span>
+              </div>
+            </li>
+          </ul>
+        </div>
       </div>
-      <div *ngIf="latestExpense !== undefined">
-        <p>Latest Expense: {{ latestExpense}}</p>
-      </div>
+    </div>
+
+    <div *ngIf="!latestEmails.length">
+      <p>No new emails</p>
     </div>
   </div>
 </div>

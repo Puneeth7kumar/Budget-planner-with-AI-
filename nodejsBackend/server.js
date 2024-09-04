@@ -1,43 +1,85 @@
 const express = require('express');
-const nodemailer = require('nodemailer');
-const bodyParser = require('body-parser');
-const cors = require('cors');
+const imaps = require('imap-simple');
+const dotenv = require('dotenv');
+
+dotenv.config();
 
 const app = express();
-app.use(cors());
-app.use(bodyParser.json());
-const corsOptions = {
-    origin: 'http://localhost:4200', // Replace with your Angular app URL
-    optionsSuccessStatus: 200
+const port = 3000;
+
+const imapConfig = {
+    imap: {
+        user: process.env.EMAIL_USER,
+        password: process.env.EMAIL_PASS,
+        host: process.env.IMAP_HOST,
+        port: process.env.IMAP_PORT,
+        tls: true,
+        authTimeout: 10000,
+        tlsOptions: { rejectUnauthorized: false },
+    },
 };
 
-app.use(cors(corsOptions));
-
-app.post('/send-email', async (req, res) => {
-    const { to, subject, text } = req.body;
+app.get('/fetch-emails', async (req, res) => {
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 100;
 
     try {
-        const transporter = nodemailer.createTransport({
-            service: 'gmail',
-            auth: {
-                user: process.env.EMAIL_USER,
-                pass: process.env.EMAIL_PASS
-            }
-        });
+        const connection = await imaps.connect(imapConfig);
+        await connection.openBox('INBOX');
 
-        let info = await transporter.sendMail({
-            from: '"Your Company" <puneethpandith@gmail.com>',
-            to: to,
-            subject: subject,
-            text: text,
-        });
+        const searchCriteria = ['UNSEEN'];
+        const fetchOptions = {
+            bodies: ['HEADER', 'TEXT'],
+            markSeen: false,
+        };
 
-        res.status(200).json({ message: 'Email sent', info });
+        const results = await connection.search(searchCriteria, fetchOptions);
+
+        const start = (page - 1) * limit;
+        const end = start + limit;
+        const paginatedResults = results.slice(start, end);
+
+        const emails = paginatedResults
+            .map(result => {
+                const header = result.parts.find(part => part.which === 'HEADER');
+                const body = result.parts.find(part => part.which === 'TEXT');
+
+                const from = header?.body?.from?.[0] || 'Unknown Sender';
+                const subject = header?.body?.subject?.[0] || 'No Subject';
+                const text = (body?.body || '').toString(); // Ensure text is a string
+
+                // Extract and format the required parts from the email text
+                const creditMatch = text.match(/(\d+(\.\d+)?)\s+credited/i);
+                const debitMatch = text.match(/(\d+(\.\d+)?)\s+debited/i);
+
+                let amount = '';
+                if (creditMatch) {
+                    amount = `${creditMatch[1]} credited`;
+                } else if (debitMatch) {
+                    amount = `${debitMatch[1]} debited`;
+                }
+
+                return {
+                    from,
+                    subject,
+                    amount,
+                };
+            })
+            .filter(email => email.amount !== ''); // Filter out emails without credit or debit information
+
+        connection.end();
+        res.json({
+            page,
+            limit,
+            totalEmails: emails.length,
+            emails,
+        });
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        console.error('Failed to fetch emails:', error);
+        res.status(500).send('Failed to fetch emails');
     }
 });
 
-app.listen(3000, () => {
-    console.log('SMTP server running on port 3000');
+app.listen(port, () => {
+    console.log(`Server is running on http://localhost:${port}`);
 });

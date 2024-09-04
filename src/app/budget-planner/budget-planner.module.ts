@@ -28,6 +28,7 @@ import { FormsModule } from '@angular/forms';
     FormsModule,
     HttpClientModule,
 
+
     CommonModule, MatIconModule, SideNavComponent, FinancialInsightsComponent, HttpClientModule, FinancialCoachComponent
 
   ],

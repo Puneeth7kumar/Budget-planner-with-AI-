@@ -10,6 +10,7 @@ import { HttpClient, HttpClientModule } from '@angular/common/http';
 import { FinancialCoachComponent } from '../../financial-coach/financial-coach.component';
 import { FinancialCoachService } from '../../financial-coach.service';
 import { BudgetPlannerModule } from '../budget-planner.module';
+import { EmailService } from '../../email.service';
 
 @Component({
   selector: 'app-dashboard',
@@ -35,31 +36,34 @@ export class DashboardComponent implements OnInit {
   previousYearSavings: number = 50000;
 
   usedPreviousSavings: number = 0;
-  latestIncome: number | undefined;
-  latestExpense: number | undefined;
-  //new adding here
-  // income1: number = 0;
-  // expenses1: number = 0;
-  // currentMonth1: string = 'July';
+  latestIncome: number = 0;  // Initialize with 0
+  latestExpense: number = 0;
 
-  constructor(public router: Router, private FinancialCoachService: FinancialCoachService, private budgetService: BudgetService, private financialInsightsService: FinancialInsightsService, private http: HttpClient) { }
+  latestEmails: any[] = [];
+  emailDetails: any[] = [];
+
+
+  constructor(public router: Router, private FinancialCoachService: FinancialCoachService, private budgetService: BudgetService, private emailService: EmailService, private financialInsightsService: FinancialInsightsService, private http: HttpClient) { }
 
   ngOnInit() {
+    this.latestIncome = 0;  // Initialize with 0
+    this.latestExpense = 0;
     this.initializeDashboard();
     this.budgetService.income$.subscribe(() => this.updateCurrentMonthTotals());
     this.budgetService.expense$.subscribe(() => this.updateCurrentMonthTotals());
     this.budgetService.todoTransaction$.subscribe(() => this.updateCurrentMonthTodoTransactions());
-
-
+    this.fetchEmails();
+    // setInterval(() => this.fetchEmails(), 60000);
+    this.budgetService.fetchLatestData();
     this.budgetService.latestIncome$.subscribe(income => {
-      this.latestIncome = income;
+      this.latestIncome = income || 0;  // Default to 0 if undefined
     });
 
     this.budgetService.latestExpense$.subscribe(expense => {
-      this.latestExpense = expense;
+      this.latestExpense = expense || 0;  // Default to 0 if undefined
     });
 
-    this.budgetService.fetchLatestData();
+
 
     this.financialInsightsService.getIncomes().subscribe(data => {
       console.log('Incomes:', data);
@@ -77,16 +81,64 @@ export class DashboardComponent implements OnInit {
     this.populateLastMonthsIncome();
     this.populateLastMonthsExpense();
     this.updateCurrentMonthTotals();
-    this.populateLastMonthsLoans();
+    //this.populateLastMonthsLoans();
     this.updateCurrentMonthTodoTransactions();
     this.getPredictedExpenses();
     this.detectAnomalies();
     this.getFinancialAdvice();
     this.getFinancialAdvice1();
   }
+  fetchEmails() {
+    this.emailService.fetchEmails().subscribe(
+      (response) => {
+        console.log('Fetched Emails:', response);
+
+        if (response && Array.isArray(response.emails)) {
+          this.latestEmails = response.emails;
+
+          // Log each email's structure to inspect its content
+          this.latestEmails.forEach(email => {
+            console.log('Email Content:', email);
+          });
+
+          // Process the email content to extract financial information
+          const { credited, debited, emailDetails } = this.emailService.processEmailContent(this.latestEmails);
+
+          //Update income and expense totals
+          if (credited > 0) {
+            this.updateIncome(credited);
+          }
+
+          if (debited > 0) {
+            this.updateExpense(debited);
+          }
+
+          // Display the email details with amounts on the dashboard
+          this.displayEmailDetails(emailDetails);
+
+        } else {
+          console.error('Unexpected format: response.emails should be an array:', response);
+        }
+      },
+      (error) => {
+        console.error('Failed to fetch emails:', error);
+      }
+    );
+  }
+
+  // New method to display email details on the dashboard
+  displayEmailDetails(emailDetails: any[]) {
+    // Assume there's a component or method to handle displaying the email details
+    // For example, setting this to a property that is used in the template
+    this.emailDetails = emailDetails;
+  }
+
+
+
+
 
   populateLastMonthsIncome() {
-    const months = ['January', 'February', 'March']; // Add more months as needed
+    const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August']; // Add more months as needed
     this.lastMonthsIncome = months.map(month => ({
       month,
       total: this.budgetService.getTotalIncomeForMonth(month)
@@ -94,19 +146,19 @@ export class DashboardComponent implements OnInit {
   }
 
   populateLastMonthsExpense() {
-    const months = ['January', 'February', 'March']; // Add more months as needed
+    const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August']; // Add more months as needed
     this.lastMonthsExpense = months.map(month => ({
       month,
       total: this.budgetService.getTotalExpenseForMonth(month)
     }));
   }
-  populateLastMonthsLoans() {
-    const months = ['January', 'February', 'March']; // Add more months as needed
-    this.lastMonthsLoans = months.map(month => ({
-      month,
-      total: this.budgetService.getTotalLoanForMonth(month)
-    }));
-  }
+  // populateLastMonthsLoans() {
+  //   const months = ['January', 'February', 'March']; // Add more months as needed
+  //   this.lastMonthsLoans = months.map(month => ({
+  //     month,
+  //     total: this.budgetService.getTotalLoanForMonth(month)
+  //   }));
+  // }
 
   updateCurrentMonthTotals() {
     const currentMonth = this.getCurrentMonth();
@@ -207,12 +259,15 @@ export class DashboardComponent implements OnInit {
     this.router.navigate(['/budget-planner/loan']);
   }
   updateIncome(amount: number) {
-    this.latestIncome = amount;
+    this.latestIncome += amount;
+    this.currentMonthIncome += amount;
     this.updateCurrentMonthTotals();
   }
 
   updateExpense(amount: number) {
-    this.latestExpense = amount;
+    this.latestExpense += amount;
+    this.currentMonthExpense += amount;
     this.updateCurrentMonthTotals();
   }
+
 }

@@ -51,6 +51,7 @@ export class IncomeComponent {
   onSubmit() {
     if (this.incomeForm.valid) {
       const newIncome = this.incomeForm.value;
+      console.log('Adding new income:', newIncome);
       this.budgetService.addIncome(this.selectedMonth, newIncome);
       this.incomeForm.reset();
       this.incomeForm.patchValue({ month: '', source: '', amount: '', investments: '' });

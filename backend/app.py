@@ -18,8 +18,7 @@ from flask import Flask, request, jsonify
 app = Flask(__name__)
 stripe.api_key = 'sk_test_51MvzmXSJjiGXnO3KqJetFeFs9F9pMWFg4VkCL4UA7ctJjtCFLtTXjZ75zaRsJoFJKYlRAYwIIzDhlKX07sqRns0S00hXSX8xAi'
 
-# latest_income = None
-# latest_expense = None
+
 
 
 load_dotenv()
@@ -27,7 +26,7 @@ load_dotenv()
 app = Flask(__name__)
 CORS(app)
 
-# Load initial data
+
 month_mapping = {month: idx + 1 for idx, month in enumerate([
     'January', 'February', 'March', 'April', 'May', 'June',
     'July', 'August', 'September', 'October', 'November', 'December'])}
@@ -48,6 +47,19 @@ joblib.dump(model_arima_fit, 'model_arima.pkl')
 generator = pipeline('text-generation', model='gpt2')
 set_seed(42)
 
+import re
+
+def extract_amount(message):
+    match = re.search(r'(\d+(?:\.\d+)?)', message)
+    return float(match.group(1)) if match else None
+
+def classify_message(message):
+    if 'debited' in message.lower():
+        return 'expense'
+    elif 'credited' in message.lower():
+        return 'income'
+    return None
+
 @app.route('/voice_command', methods=['POST'])
 def voice_command():
     file = request.files['audio']
@@ -59,39 +71,7 @@ def voice_command():
     response = {"command": text}
     return jsonify(response)
 
-# @app.route('/webhook', methods=['POST'])
-# def stripe_webhook():
-#     payload = request.get_data(as_text=True)
-#     sig_header = request.headers.get('Stripe-Signature')
 
-#     try:
-#         event = stripe.Webhook.construct_event(
-#             payload, sig_header, 'whsec_UdBqU4DZvqfspXWzE3JUWk2SxKafjkme'
-#         )
-#     except ValueError as e:
-#         # Invalid payload
-#         return 'Invalid payload', 400
-#     except stripe.error.SignatureVerificationError as e:
-#         # Invalid signature
-#         return 'Invalid signature', 400
-
-#     # Handle the event
-#     if event['type'] == 'invoice.payment_succeeded':
-#         invoice = event['data']['object']
-#         global latest_income
-#         latest_income = invoice['amount_paid'] / 100  # amount_paid is in cents
-#     elif event['type'] == 'charge.refunded':
-#         charge = event['data']['object']
-#         global latest_expense
-#         latest_expense = charge['amount_refunded'] / 100  # amount_refunded is in cents
-
-#     return 'Success', 200
-
-# @app.route('/latest-data', methods=['GET'])
-# def get_latest_data():
-#     latest_income=500
-#     latest_expense:400
-#     return jsonify({"latestIncome": latest_income, "latestExpense": latest_expense})
 
 @app.route('/financial_advice', methods=['POST'])
 def financial_advice():
@@ -114,13 +94,18 @@ def get_financial_advice(query):
 def sms_reply():
     global latest_income, latest_expense
     message_body = request.form['Body']
+    transaction_type = classify_message(message_body)
+    amount = extract_amount(message_body)
     
-    if 'income' in message_body.lower():
-        latest_income = float(message_body.split()[-1])  # Simplified example, parse message properly in production
-    elif 'expense' in message_body.lower():
-        latest_expense = float(message_body.split()[-1])  # Simplified example, parse message properly in production
-    
+    if transaction_type == 'income':
+        latest_income = amount
+        update_income(amount)
+    elif transaction_type == 'expense':
+        latest_expense = amount
+        update_expenses(amount)
+
     return "Message processed", 200
+
 
 @app.route('/latest-data', methods=['GET'])
 def get_latest_data():

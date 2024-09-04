@@ -20,6 +20,32 @@ export class BudgetService {
       { source: 'Freelancing', amount: 1200, investments: 'Stocks' },
       { source: 'Rental Income', amount: 600, investments: 'Real Estate' },
     ],
+    April: [
+      { source: 'Salary', amount: 1000, investments: '401(k)' },
+      { source: 'Freelancing', amount: 1200, investments: 'Stocks' },
+      { source: 'Rental Income', amount: 600, investments: 'Real Estate' },
+    ],
+    May: [
+      { source: 'Salary', amount: 1900, investments: '401(k)' },
+      { source: 'Freelancing', amount: 100, investments: 'Stocks' },
+      { source: 'Rental Income', amount: 6000, investments: 'Real Estate' },
+    ],
+    June: [
+      { source: 'Salary', amount: 1900, investments: '401(k)' },
+      { source: 'Freelancing', amount: 120, investments: 'Stocks' },
+      { source: 'Rental Income', amount: 1600, investments: 'Real Estate' },
+    ],
+    July: [
+      { source: 'Salary', amount: 2000, investments: '401(k)' },
+      { source: 'Freelancing', amount: 1200, investments: 'Stocks' },
+      { source: 'Rental Income', amount: 500, investments: 'Real Estate' },
+    ],
+    August: [
+      { source: 'Salary', amount: 5000, investments: '401(k)' },
+      { source: 'Freelancing', amount: 1000, investments: 'Stocks' },
+      { source: 'Rental Income', amount: 400, investments: 'Real Estate' },
+    ],
+
   };
 
   private expenses: { [key: string]: any[] } = {
@@ -34,6 +60,26 @@ export class BudgetService {
     March: [
       { expenseType: 'Rent', expenseAmount: 1000 },
       { expenseType: 'Utilities', expenseAmount: 300 },
+    ],
+    April: [
+      { expenseType: 'Rent', expenseAmount: 2000 },
+      { expenseType: 'Utilities', expenseAmount: 300 },
+    ],
+    May: [
+      { expenseType: 'Rent', expenseAmount: 500 },
+      { expenseType: 'Utilities', expenseAmount: 200 },
+    ],
+    June: [
+      { expenseType: 'Rent', expenseAmount: 2000 },
+      { expenseType: 'Utilities', expenseAmount: 90 },
+    ],
+    July: [
+      { expenseType: 'Rent', expenseAmount: 2000 },
+      { expenseType: 'Utilities', expenseAmount: 100 },
+    ],
+    August: [
+      { expenseType: 'Rent', expenseAmount: 1500 },
+      { expenseType: 'Utilities', expenseAmount: 100 },
     ],
   };
 
@@ -52,7 +98,20 @@ export class BudgetService {
     ],
   };
 
-  private loans: { [key: string]: Loan[] } = {};
+  private loans: { [key: string]: Loan[] } = {
+    // January: [
+    //   { amount: 5000, interestRate: 3.5, term: 36, loanType: 'Personal', documents: File | null, income: 60000, existingCreditScore: 720, employmentStatus: 'Employed' },
+    //   { amount: 10000, interestRate: 4.2, term: 48, loanType: 'Auto', documents: 'Pay Stubs', income: 55000, existingCreditScore: 680, employmentStatus: 'Self-Employed' },
+    // ],
+    // February: [
+    //   { amount: 7000, interestRate: 2.9, term: 24, loanType: 'Education', documents: 'ID Proof', income: 45000, existingCreditScore: 700, employmentStatus: 'Student' },
+    //   { amount: 15000, interestRate: 5.0, term: 60, loanType: 'Home', documents: 'Property Papers', income: 75000, existingCreditScore: 750, employmentStatus: 'Employed' },
+    // ],
+    // March: [
+    //   { amount: 12000, interestRate: 3.7, term: 36, loanType: 'Business', documents: 'Tax Returns', income: 80000, existingCreditScore: 710, employmentStatus: 'Business Owner' },
+    //   { amount: 5000, interestRate: 4.0, term: 12, loanType: 'Personal', documents: 'Bank Statements', income: 52000, existingCreditScore: 690, employmentStatus: 'Employed' },
+    // ],
+  };
 
   private incomeSubject = new BehaviorSubject<{ [key: string]: any[] }>(this.incomes);
   private expenseSubject = new BehaviorSubject<{ [key: string]: any[] }>(this.expenses);
@@ -69,12 +128,13 @@ export class BudgetService {
 
   constructor(private http: HttpClient) { }
   fetchLatestData() {
-    this.http.get<{ latestIncome: number, latestExpense: number }>('https://1440-103-141-113-225.ngrok-free.app/latest-data')
+    this.http.get<{ latestIncome: number, latestExpense: number }>('http://localhost:5000/latest-data')
       .subscribe(data => {
         this.latestIncomeSubject.next(data.latestIncome);
         this.latestExpenseSubject.next(data.latestExpense);
       });
   }
+
   getIncomesForMonth(month: string): any[] {
     return this.incomes[month] || [];
 
@@ -89,6 +149,7 @@ export class BudgetService {
   }
 
   getTotalIncomeForMonth(month: string): number {
+
     return this.getIncomesForMonth(month).reduce((total, income) => total + income.amount, 0);
   }
 
