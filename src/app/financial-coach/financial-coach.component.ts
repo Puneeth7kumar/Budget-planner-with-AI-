@@ -1,8 +1,8 @@
 import { Component } from '@angular/core';
 import { FinancialCoachService } from '../financial-coach.service';
 import { CommonModule } from '@angular/common';
-
 import { HttpClientModule } from '@angular/common/http';
+import { } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
 
 @Component({
@@ -10,7 +10,11 @@ import { FormsModule } from '@angular/forms';
   templateUrl: './financial-coach.component.html',
   styleUrls: ['./financial-coach.component.scss'],
   standalone: true,
-  imports: [CommonModule, FormsModule, HttpClientModule]
+  imports: [CommonModule, FormsModule,
+    // TODO: `HttpClientModule` should not be imported into a component directly.
+    // Please refactor the code to add `provideHttpClient()` call to the provider list in the
+    // application bootstrap logic and remove the `HttpClientModule` import from this component.
+    HttpClientModule]
 })
 export class FinancialCoachComponent {
   userQuery: string = '';

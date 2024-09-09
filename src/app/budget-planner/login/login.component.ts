@@ -2,7 +2,7 @@ import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
-import { MatSnackBar } from '@angular/material/snack-bar';
+import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { AngularFireAuth } from '@angular/fire/compat/auth';  // Import AngularFireAuth
 import { FirebaseError } from 'firebase/app';  // To handle Firebase errors
 import { AuthService } from '../../auth.service';
@@ -10,9 +10,9 @@ import { AuthService } from '../../auth.service';
 @Component({
   selector: 'app-login',
   standalone: true,
-  imports: [ReactiveFormsModule, CommonModule],
+  imports: [ReactiveFormsModule, CommonModule, MatSnackBarModule],
   templateUrl: './login.component.html',
-  styleUrl: './login.component.scss'
+  styleUrls: ['./login.component.scss']
 })
 export class LoginComponent implements OnInit {
   loginForm: any;
@@ -64,9 +64,10 @@ export class LoginComponent implements OnInit {
       this.authService.register(email, password)
         .then(() => {
           this.snackBar.open('Registration successful! Redirecting to login...', 'Close', { duration: 3000 });
-          setTimeout(() => {
-            this.router.navigate(['/budget-planner/login']);
-          }, 2000);
+
+          // Switch to login form immediately after successful registration
+          this.activeForm = 'login';  // Switch to login form
+          this.router.navigate(['/budget-planner/login']);
         })
         .catch((error: FirebaseError) => {
           this.handleError(error);

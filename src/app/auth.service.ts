@@ -49,7 +49,9 @@ export class AuthService {
   isLoggedIn() {
     return this.afAuth.authState;  // Return auth state for session checking
   }
-
+  getUser() {
+    return this.afAuth.authState;
+  }
   // Error handler
   private handleError(error: any) {
     let errorMessage = 'An error occurred! Please try again.';

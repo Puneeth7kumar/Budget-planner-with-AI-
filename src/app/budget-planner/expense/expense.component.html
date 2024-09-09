@@ -1,50 +1,59 @@
 <div class="navbar">
-    <h2>EXPENSE</h2>
+    <h2>EXPENSES</h2>
 </div>
 
 <div class="main-container">
     <div class="container">
-        <h2>Expense</h2>
-        <form [formGroup]="expenseForm" (ngSubmit)="onSubmitExpense()" class="input-form">
+        <h2>Expenses</h2>
+        <form [formGroup]="expenseForm" (ngSubmit)="onSubmit()" class="input-form">
             <div class="form-group">
-                <select formControlName="month" id="month" class="form-control" (change)="onChangeExpense($event)">
+                <select formControlName="month" id="month" class="form-control" (change)="onChange($event)">
                     <option value="" disabled>Select Month</option>
                     <option value="January">January</option>
                     <option value="February">February</option>
                     <option value="March">March</option>
+                    <option value="April">April</option>
+                    <option value="May">May</option>
+                    <option value="June">June</option>
                     <option value="July">July</option>
                     <option value="August">August</option>
                     <option value="September">September</option>
+                    <option value="October">October</option>
+                    <option value="November">November</option>
+                    <option value="December">December</option>
                 </select>
             </div>
             <div class="total-expense">
-                Total expense for {{ selectedMonth }}: ₹{{ calculateTotalExpense() }}
+                Total expense for {{ selectedMonth }}: ₹{{ totalExpense$ | async }}
             </div>
             <div class="form-group">
-                <label for="expenseType">Expense Type:</label>
-                <input type="text" formControlName="expenseType" id="expenseType" class="form-control"
-                    placeholder="Enter Expense Type" [class.disabled-dropdown]="!monthSelected">
+                <label for="expenseType">Type of Expense:</label>
+                <select formControlName="expenseType" id="expenseType" class="form-control">
+                    <option value="" disabled>Select Type</option>
+                    <option value="Rent">Rent</option>
+                    <option value="Utilities">Utilities</option>
+                    <option value="Groceries">Groceries</option>
+                </select>
             </div>
-
             <div class="form-group">
                 <label for="expenseAmount">Amount:</label>
                 <input type="number" formControlName="expenseAmount" id="expenseAmount" class="form-control"
-                    placeholder="Enter amount" [class.disabled-dropdown]="!monthSelected">
+                    placeholder="Enter amount">
             </div>
-            <button type="submit" class="btn btn-primary" [class.disabled-dropdown]="!monthSelected">Add
-                Expense</button>
+            <button type="submit" class="btn btn-primary">Add</button>
         </form>
+
         <hr>
         <h3>Expense List - {{ selectedMonth }}</h3>
         <table class="table">
             <thead>
                 <tr>
-                    <th>Expense Type</th>
+                    <th>Type of Expense</th>
                     <th>Amount</th>
                 </tr>
             </thead>
             <tbody>
-                <tr *ngFor="let expense of getFilteredExpenses()">
+                <tr *ngFor="let expense of expenses$ | async">
                     <td>{{ expense.expenseType }}</td>
                     <td>{{ expense.expenseAmount }}</td>
                 </tr>
@@ -52,9 +61,7 @@
         </table>
         <div class="input-form">
             <button class="btn btn-primary" (click)="onBack()">Back</button>
-            <div class="form-group">
-            </div>
-            <button class="btn btn-primary" (click)="onSave()">Save</button>
+            <button class="btn btn-primary" (click)="saveForm()">Save</button>
         </div>
     </div>
 </div>

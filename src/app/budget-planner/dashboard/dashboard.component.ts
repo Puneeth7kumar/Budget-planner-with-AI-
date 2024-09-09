@@ -6,11 +6,12 @@ import { FinancialInsightsComponent } from '../../financial-insights/financial-i
 import { SideNavComponent } from '../side-nav/side-nav.component';
 import { MatIconModule } from '@angular/material/icon';
 import { CommonModule } from '@angular/common';
-import { HttpClient, HttpClientModule } from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 import { FinancialCoachComponent } from '../../financial-coach/financial-coach.component';
 import { FinancialCoachService } from '../../financial-coach.service';
 import { BudgetPlannerModule } from '../budget-planner.module';
 import { EmailService } from '../../email.service';
+import { Observable } from 'rxjs';
 
 @Component({
   selector: 'app-dashboard',
@@ -22,6 +23,7 @@ import { EmailService } from '../../email.service';
 export class DashboardComponent implements OnInit {
   lastMonthsIncome: { month: string, total: number }[] = [];
   currentMonthIncome: number = 0;
+
 
   lastMonthsExpense: { month: string, total: number }[] = [];
   currentMonthExpense: number = 0;
@@ -53,10 +55,12 @@ export class DashboardComponent implements OnInit {
     this.budgetService.expense$.subscribe(() => this.updateCurrentMonthTotals());
     this.budgetService.todoTransaction$.subscribe(() => this.updateCurrentMonthTodoTransactions());
     this.fetchEmails();
+
     // setInterval(() => this.fetchEmails(), 60000);
     this.budgetService.fetchLatestData();
+
     this.budgetService.latestIncome$.subscribe(income => {
-      this.latestIncome = income || 0;  // Default to 0 if undefined
+      this.latestIncome = income || 0;
     });
 
     this.budgetService.latestExpense$.subscribe(expense => {
@@ -137,20 +141,24 @@ export class DashboardComponent implements OnInit {
 
 
 
-  populateLastMonthsIncome() {
-    const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August']; // Add more months as needed
-    this.lastMonthsIncome = months.map(month => ({
-      month,
-      total: this.budgetService.getTotalIncomeForMonth(month)
-    }));
+  async populateLastMonthsIncome() {
+    const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August'];
+    this.lastMonthsIncome = await Promise.all(
+      months.map(async month => {
+        const total = await this.budgetService.getTotalIncomeForMonth(month).toPromise();
+        return { month, total: total || 0 };  // Handle undefined by defaulting to 0
+      })
+    );
   }
 
-  populateLastMonthsExpense() {
-    const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August']; // Add more months as needed
-    this.lastMonthsExpense = months.map(month => ({
-      month,
-      total: this.budgetService.getTotalExpenseForMonth(month)
-    }));
+  async populateLastMonthsExpense() {
+    const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August'];
+    this.lastMonthsExpense = await Promise.all(
+      months.map(async month => {
+        const total = await this.budgetService.getTotalExpenseForMonth(month).toPromise();
+        return { month, total: total || 0 };
+      })
+    );
   }
   // populateLastMonthsLoans() {
   //   const months = ['January', 'February', 'March']; // Add more months as needed
@@ -162,8 +170,13 @@ export class DashboardComponent implements OnInit {
 
   updateCurrentMonthTotals() {
     const currentMonth = this.getCurrentMonth();
-    this.currentMonthIncome = this.budgetService.getTotalIncomeForMonth(currentMonth);
-    this.currentMonthExpense = this.budgetService.getTotalExpenseForMonth(currentMonth);
+    this.budgetService.getTotalIncomeForMonth(currentMonth).subscribe(income => {
+      this.currentMonthIncome = income || 0;  // Handle undefined by defaulting to 0
+    });
+
+    this.budgetService.getTotalExpenseForMonth(currentMonth).subscribe(expense => {
+      this.currentMonthExpense = expense || 0;
+    });
     const loans = this.budgetService.getLoansForMonth(currentMonth);
     this.currentMonthLoan = loans.reduce((total, loan) => total + loan.amount, 0);
   }
@@ -176,16 +189,20 @@ export class DashboardComponent implements OnInit {
   getPredictedExpenses() {
     const currentMonth = this.getCurrentMonth();
     const income = this.currentMonthIncome;
-    const prevExpenses = this.getPreviousMonthExpense();
 
-    this.financialInsightsService.predictExpenses(currentMonth, income, prevExpenses).subscribe(data => {
-      this.predictedExpenses = data.predicted_expenses_rf;  // or data.predicted_expenses_arima based on your preference
+    // Subscribe to get the previous month's expenses
+    this.getPreviousMonthExpense().subscribe(prevExpenses => {
+      // Once previous expenses are available, call the prediction service
+      this.financialInsightsService.predictExpenses(currentMonth, income, prevExpenses).subscribe(data => {
+        this.predictedExpenses = data.predicted_expenses_rf;  // or predicted_expenses_arima
+      });
     });
   }
 
-  getPreviousMonthExpense(): number {
+
+  getPreviousMonthExpense(): Observable<number> {
     const previousMonth = this.getPreviousMonth();
-    return this.budgetService.getTotalExpenseForMonth(previousMonth) || 0;
+    return this.budgetService.getTotalExpenseForMonth(previousMonth);
   }
 
   getPreviousMonth(): string {

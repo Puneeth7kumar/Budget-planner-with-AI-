@@ -1,7 +1,11 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { BehaviorSubject } from 'rxjs';
+import { BehaviorSubject, map, of, switchMap, Observable } from 'rxjs';
 import { Loan } from '../models/loan.model';
+import { AuthService } from '../auth.service';
+import { AngularFirestore } from '@angular/fire/compat/firestore';
+import { Income } from '../models/income.model';
+import { Expense } from '../models/expense.model';
 @Injectable({
   providedIn: 'root',
 })
@@ -126,7 +130,7 @@ export class BudgetService {
   latestIncome$ = this.latestIncomeSubject.asObservable();
   latestExpense$ = this.latestExpenseSubject.asObservable();
 
-  constructor(private http: HttpClient) { }
+  constructor(private http: HttpClient, private firestore: AngularFirestore, private authService: AuthService) { }
   fetchLatestData() {
     this.http.get<{ latestIncome: number, latestExpense: number }>('http://localhost:5000/latest-data')
       .subscribe(data => {
@@ -135,38 +139,108 @@ export class BudgetService {
       });
   }
 
-  getIncomesForMonth(month: string): any[] {
-    return this.incomes[month] || [];
+  // getIncomesForMonth(month: string): any[] {
+  //   return this.incomes[month] || [];
 
+  // }
+
+  // addIncome(month: string, income: any): void {
+  //   if (!this.incomes[month]) {
+  //     this.incomes[month] = [];
+  //   }
+  //   this.incomes[month].push(income);
+  //   this.incomeSubject.next(this.incomes);
+  // }
+
+  // getTotalIncomeForMonth(month: string): number {
+
+  //   return this.getIncomesForMonth(month).reduce((total, income) => total + income.amount, 0);
+  // }
+  addIncome(month: string, incomeData: Income): Observable<void> {
+    return this.authService.getUser().pipe(
+      switchMap(user => {
+        if (user) {
+          const userId = user.uid;
+          return this.firestore.collection(`users/${userId}/incomes`).add({
+            month,
+            ...incomeData
+          }).then(() => { });
+        }
+        return of(undefined);
+      })
+    );
   }
 
-  addIncome(month: string, income: any): void {
-    if (!this.incomes[month]) {
-      this.incomes[month] = [];
-    }
-    this.incomes[month].push(income);
-    this.incomeSubject.next(this.incomes);
+  getIncomesForMonth(month: string): Observable<Income[]> {
+    return this.authService.getUser().pipe(
+      switchMap(user => {
+        if (user) {
+          const userId = user.uid;
+          return this.firestore.collection<Income>(`users/${userId}/incomes`, ref =>
+            ref.where('month', '==', month)
+          ).valueChanges();
+        }
+        return of([]);
+      })
+    );
   }
 
-  getTotalIncomeForMonth(month: string): number {
-
-    return this.getIncomesForMonth(month).reduce((total, income) => total + income.amount, 0);
+  getTotalIncomeForMonth(month: string): Observable<number> {
+    return this.getIncomesForMonth(month).pipe(
+      map(incomes => incomes.reduce((total, income) => total + income.amount, 0))
+    );
   }
 
-  addExpense(month: string, expense: { expenseType: string, expenseAmount: number }) {
-    if (!this.expenses[month]) {
-      this.expenses[month] = [];
-    }
-    this.expenses[month].push(expense);
-    this.expenseSubject.next(this.expenses);
+  // addExpense(month: string, expense: { expenseType: string, expenseAmount: number }) {
+  //   if (!this.expenses[month]) {
+  //     this.expenses[month] = [];
+  //   }
+  //   this.expenses[month].push(expense);
+  //   this.expenseSubject.next(this.expenses);
+  // }
+
+  // getExpensesForMonth(month: string): any[] {
+  //   return this.expenses[month] || [];
+  // }
+
+  // getTotalExpenseForMonth(month: string): number {
+  //   return this.getExpensesForMonth(month).reduce((total, expense) => total + expense.expenseAmount, 0);
+  // }
+  addExpense(month: string, expenseData: Expense): Observable<void> {
+    return this.authService.getUser().pipe(
+      switchMap(user => {
+        if (user) {
+          const userId = user.uid;
+          return this.firestore.collection(`users/${userId}/expenses`).add({
+            month,
+            ...expenseData
+          }).then(() => { });
+        }
+        return of(undefined);
+      })
+    );
   }
 
-  getExpensesForMonth(month: string): any[] {
-    return this.expenses[month] || [];
+  // Get expenses for a specific month
+  getExpensesForMonth(month: string): Observable<Expense[]> {
+    return this.authService.getUser().pipe(
+      switchMap(user => {
+        if (user) {
+          const userId = user.uid;
+          return this.firestore.collection<Expense>(`users/${userId}/expenses`, ref =>
+            ref.where('month', '==', month)
+          ).valueChanges();
+        }
+        return of([]);
+      })
+    );
   }
 
-  getTotalExpenseForMonth(month: string): number {
-    return this.getExpensesForMonth(month).reduce((total, expense) => total + expense.expenseAmount, 0);
+  // Calculate total expense for a specific month
+  getTotalExpenseForMonth(month: string): Observable<number> {
+    return this.getExpensesForMonth(month).pipe(
+      map(expenses => expenses.reduce((total, expense) => total + expense.expenseAmount, 0))
+    );
   }
 
   getTodoTransactionsForMonth(month: string): any[] {

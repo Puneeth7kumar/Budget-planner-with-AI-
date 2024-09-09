@@ -1,21 +1,22 @@
-import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
-import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { MatIconModule } from '@angular/material/icon';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
+import { Observable, of } from 'rxjs';
 import { BudgetService } from '../../services/budget.service';
+import { Expense } from '../../models/expense.model';
 
 @Component({
   selector: 'app-expense',
-  standalone: true,
-  imports: [ReactiveFormsModule, CommonModule, MatIconModule],
   templateUrl: './expense.component.html',
   styleUrls: ['./expense.component.scss']
 })
 export class ExpenseComponent implements OnInit {
-  expenseForm!: FormGroup;  // Use '!' to tell TypeScript that this will be initialized before use
+  expenseForm!: FormGroup;
   selectedMonth: string;
   monthSelected: boolean = false;
+  expenses$: Observable<Expense[]> = of([]);
+  totalExpense$: Observable<number> = of(0);
+  currentMonthExpense!: Observable<number>;
 
   constructor(
     private fb: FormBuilder,
@@ -23,47 +24,46 @@ export class ExpenseComponent implements OnInit {
     private budgetService: BudgetService
   ) {
     const currentDate = new Date();
-    const currentMonth = currentDate.toLocaleString('default', { month: 'long' });
-    this.selectedMonth = currentMonth;
+    this.selectedMonth = currentDate.toLocaleString('default', { month: 'long' });
   }
 
   ngOnInit(): void {
     this.expenseForm = this.fb.group({
-      month: [this.selectedMonth, Validators.required],
+      month: ['', Validators.required],
       expenseType: ['', Validators.required],
-      expenseAmount: ['', Validators.required]
+      expenseAmount: [0, [Validators.required, Validators.min(0)]]
     });
+
+    // Fetch expense data for the current selected month
+    this.currentMonthExpense = this.budgetService.getTotalExpenseForMonth(this.selectedMonth);
+    this.totalExpense$ = this.budgetService.getTotalExpenseForMonth(this.selectedMonth);
+    this.expenses$ = this.budgetService.getExpensesForMonth(this.selectedMonth);
   }
 
-  onSubmitExpense() {
-    if (this.expenseForm.valid) {
-      const newExpense = {
-        expenseType: this.expenseForm.value.expenseType,
-        expenseAmount: this.expenseForm.value.expenseAmount
-      };
-      this.budgetService.addExpense(this.selectedMonth, newExpense);
-      this.expenseForm.reset({ month: this.selectedMonth });
-    }
-  }
-
-  onChangeExpense(event: any) {
+  onChange(event: any) {
     this.selectedMonth = event.target.value;
     this.monthSelected = true;
+
+    // Update observables with the new month
+    this.totalExpense$ = this.budgetService.getTotalExpenseForMonth(this.selectedMonth);
+    this.expenses$ = this.budgetService.getExpensesForMonth(this.selectedMonth);
   }
 
-  getFilteredExpenses() {
-    return this.budgetService.getExpensesForMonth(this.selectedMonth);
-  }
-
-  calculateTotalExpense(): number {
-    return this.budgetService.getTotalExpenseForMonth(this.selectedMonth);
-  }
-
-  onSave() {
-    // Placeholder for save logic if needed
+  onSubmit() {
+    if (this.expenseForm.valid) {
+      const newExpense = this.expenseForm.value;
+      this.budgetService.addExpense(this.selectedMonth, newExpense).subscribe(() => {
+        // Handle success, e.g., show a message or reset the form
+        this.expenseForm.reset();
+      });
+    }
   }
 
   onBack() {
     this.router.navigate(['/budget-planner/dashboard']);
+  }
+
+  saveForm() {
+    console.log("Form saved!");
   }
 }
