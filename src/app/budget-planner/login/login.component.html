@@ -13,10 +13,9 @@
       <input type="password" formControlName="password" placeholder="Password" />
     </div>
     <button type="submit">Login</button>
-    <p (click)="toggleForm('register')">Don't have an account?
-      <span class="highlighted">Register</span>
-    </p>
+    <p (click)="toggleForm('register')">Don't have an account? <span class="highlighted">Register</span></p>
   </form>
+
   <!-- Register -->
   <form *ngIf="activeForm === 'register'" [formGroup]="registerForm" (ngSubmit)="register()">
     <h2>Register</h2>
@@ -30,8 +29,6 @@
       <input type="password" formControlName="password" placeholder="Password" />
     </div>
     <button type="submit">Register</button>
-    <p (click)="toggleForm('login')">Already have an account?
-      <span class="highlighted">Login</span>
-    </p>
+    <p (click)="toggleForm('login')">Already have an account? <span class="highlighted">Login</span></p>
   </form>
 </div>

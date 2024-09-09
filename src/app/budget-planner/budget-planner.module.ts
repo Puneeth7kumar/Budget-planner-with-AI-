@@ -14,6 +14,11 @@ import { MatIconModule } from '@angular/material/icon';
 import { SideNavComponent } from './side-nav/side-nav.component';
 import { LoanComponent } from './loan/loan.component';
 import { FormsModule } from '@angular/forms';
+import { environment } from '../../environments/environment';
+import { AngularFireModule } from '@angular/fire/compat';
+import { AngularFireAuthModule } from '@angular/fire/compat/auth';
+
+
 
 
 @NgModule({
@@ -28,7 +33,8 @@ import { FormsModule } from '@angular/forms';
     FormsModule,
     HttpClientModule,
 
-
+    AngularFireModule.initializeApp(environment.firebaseConfig),
+    AngularFireAuthModule,
     CommonModule, MatIconModule, SideNavComponent, FinancialInsightsComponent, HttpClientModule, FinancialCoachComponent
 
   ],

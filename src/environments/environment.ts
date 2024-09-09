@@ -1,12 +1,12 @@
 export const environment = {
     production: false,
     firebaseConfig: {
-        apiKey: "AIzaSyAPRx6g3uhhY6ykd4ltNSbnVmh63Wq1684",
-        authDomain: "spendsmart-bb5dd.firebaseapp.com",
-        projectId: "spendsmart-bb5dd",
-        storageBucket: "spendsmart-bb5dd.appspot.com",
-        messagingSenderId: "467169611848",
-        appId: "1:467169611848:web:c4dd0ace08dbecbc8f887d",
-        measurementId: "G-28BDJ4QKEH"
-    },
+        apiKey: "AIzaSyC1zmMwPqlok_039DFUHq2S1yly6S7AdJo",
+        authDomain: "smartplan-5279a.firebaseapp.com",
+        projectId: "smartplan-5279a",
+        storageBucket: "smartplan-5279a.appspot.com",
+        messagingSenderId: "499161255810",
+        appId: "1:499161255810:web:bfcdc2f5992f40a31d899b",
+        measurementId: "G-3DBPQYYMT7"
+    }
 };
