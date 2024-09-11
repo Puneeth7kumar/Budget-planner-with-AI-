@@ -1,11 +1,12 @@
 import { HttpClient } from '@angular/common/http';
-import { Injectable } from '@angular/core';
+import { Inject, Injectable, PLATFORM_ID } from '@angular/core';
 import { BehaviorSubject, map, of, switchMap, Observable } from 'rxjs';
 import { Loan } from '../models/loan.model';
 import { AuthService } from '../auth.service';
 import { AngularFirestore } from '@angular/fire/compat/firestore';
 import { Income } from '../models/income.model';
 import { Expense } from '../models/expense.model';
+import { isPlatformBrowser } from '@angular/common';
 @Injectable({
   providedIn: 'root',
 })
@@ -190,7 +191,34 @@ export class BudgetService {
       map(incomes => incomes.reduce((total, income) => total + income.amount, 0))
     );
   }
-
+  // getTotalIncomeForMonth(month: string): Observable<number> {
+  //   if (isPlatformBrowser(this.platformId)) {
+  //     // Access localStorage only if on the browser platform
+  //     const cachedTotal = localStorage.getItem(`${month}-income`);
+  //     if (cachedTotal) {
+  //       return of(parseFloat(cachedTotal));
+  //     }
+  //   }
+  //   // Fetch and calculate from API if not on browser or no cache
+  //   return this.getIncomesForMonth(month).pipe(
+  //     map(incomes => {
+  //       const total = incomes.reduce((acc, income) => acc + income.amount, 0);
+  //       if (isPlatformBrowser(this.platformId)) {
+  //         localStorage.setItem(`${month}-income`, total.toString());
+  //       }
+  //       return total;
+  //     })
+  //   );
+  // }
+  // updateTotalIncomeForMonth(month: string, newIncome: number): void {
+  //   if (isPlatformBrowser(this.platformId)) {
+  //     this.getTotalIncomeForMonth(month).subscribe(currentTotal => {
+  //       const updatedTotal = currentTotal + newIncome;
+  //       localStorage.setItem(`${month}-income`, updatedTotal.toString());
+  //       // Here, ensure you don't have any subscription that might cause a loop
+  //     });
+  //   }
+  // }
   // addExpense(month: string, expense: { expenseType: string, expenseAmount: number }) {
   //   if (!this.expenses[month]) {
   //     this.expenses[month] = [];
@@ -243,6 +271,34 @@ export class BudgetService {
     );
   }
 
+  // getTotalExpenseForMonth(month: string): Observable<number> {
+  //   if (isPlatformBrowser(this.platformId)) {
+  //     const cachedTotal = localStorage.getItem(`${month}-expense`);
+  //     if (cachedTotal) {
+  //       return of(parseFloat(cachedTotal));
+  //     }
+  //   }
+  //   return this.getExpensesForMonth(month).pipe(
+  //     map(expenses => {
+  //       const total = expenses.reduce((acc, expense) => acc + expense.expenseAmount, 0);
+  //       if (isPlatformBrowser(this.platformId)) {
+  //         localStorage.setItem(`${month}-expense`, total.toString());
+  //       }
+  //       return total;
+  //     })
+  //   );
+  // }
+
+  // updateTotalExpenseForMonth(month: string, newExpense: number): void {
+  //   this.getTotalExpenseForMonth(month).subscribe(currentTotal => {
+  //     const updatedTotal = currentTotal + newExpense;
+  //     if (isPlatformBrowser(this.platformId)) {
+  //       localStorage.setItem(`${month}-expense`, updatedTotal.toString());
+  //     }
+  //     // Optionally, emit an event or update a state observable here if needed
+  //   });
+  // }
+
   getTodoTransactionsForMonth(month: string): any[] {
     return this.todoTransactions[month] || [];
   }
@@ -279,5 +335,8 @@ export class BudgetService {
     let monthlyRate = interestRate / (12 * 100);
     return (amount * monthlyRate * Math.pow(1 + monthlyRate, term)) / (Math.pow(1 + monthlyRate, term) - 1);
   }
+
+
+
 
 }

@@ -19,7 +19,7 @@ export class IncomeComponent implements OnInit {
   monthSelected: boolean = false;
   incomes$: Observable<Income[]> = of([]);
   totalIncome$: Observable<number> = of(0);
- // Set a default month or get it dynamically
+  // Set a default month or get it dynamically
   currentMonthIncome!: Observable<number>;
 
   constructor(

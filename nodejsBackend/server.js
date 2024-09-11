@@ -1,12 +1,12 @@
 const express = require('express');
 const imaps = require('imap-simple');
 const dotenv = require('dotenv');
-
+const axios = require('axios');
 dotenv.config();
 
 const app = express();
 const port = 3000;
-
+app.use(express.json());
 const imapConfig = {
     imap: {
         user: process.env.EMAIL_USER,
@@ -79,7 +79,21 @@ app.get('/fetch-emails', async (req, res) => {
         res.status(500).send('Failed to fetch emails');
     }
 });
+// app.post('/check-spam', async (req, res) => {
+//     const emailContent = req.body.content;
 
+//     try {
+//         const response = await axios.post('http://localhost:5000/classify-email', {
+//             content: emailContent
+//         });
+
+//         const isSpam = response.data.classification === 'spam';
+//         res.json({ isSpam });
+//     } catch (error) {
+//         console.error('Error checking spam:', error);
+//         res.status(500).send('Error checking spam');
+//     }
+// });
 app.listen(port, () => {
     console.log(`Server is running on http://localhost:${port}`);
 });

@@ -1,0 +1,19 @@
+<div class="email-checker">
+    <h2>Spam Email Checker</h2>
+
+    <!-- Textarea for email content input -->
+    <textarea [(ngModel)]="emailContent" placeholder="Enter the email content here..." rows="6"></textarea>
+
+    <!-- Button to trigger spam check -->
+    <button (click)="checkEmail()">Check for Spam</button>
+
+    <!-- Error message display -->
+    <div *ngIf="errorMessage" class="error-message">
+        {{ errorMessage }}
+    </div>
+
+    <!-- Classification result display -->
+    <div *ngIf="classification" class="result">
+        <p>Email Classification: <strong>{{ classification }}</strong></p>
+    </div>
+</div>

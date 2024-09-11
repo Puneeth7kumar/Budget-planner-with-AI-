@@ -2,16 +2,13 @@ import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { BudgetService } from '../../services/budget.service';
 import { FinancialInsightsService } from '../../financial-insights.service';
-import { FinancialInsightsComponent } from '../../financial-insights/financial-insights.component';
-import { SideNavComponent } from '../side-nav/side-nav.component';
-import { MatIconModule } from '@angular/material/icon';
-import { CommonModule } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
-import { FinancialCoachComponent } from '../../financial-coach/financial-coach.component';
+
 import { FinancialCoachService } from '../../financial-coach.service';
-import { BudgetPlannerModule } from '../budget-planner.module';
+
 import { EmailService } from '../../email.service';
 import { Observable } from 'rxjs';
+import { SpamDetectionService } from '../../services/spam-detection.service';
 
 @Component({
   selector: 'app-dashboard',
@@ -23,7 +20,7 @@ import { Observable } from 'rxjs';
 export class DashboardComponent implements OnInit {
   lastMonthsIncome: { month: string, total: number }[] = [];
   currentMonthIncome: number = 0;
-
+  spamEmails: any[] = [];
 
   lastMonthsExpense: { month: string, total: number }[] = [];
   currentMonthExpense: number = 0;
@@ -45,7 +42,7 @@ export class DashboardComponent implements OnInit {
   emailDetails: any[] = [];
 
 
-  constructor(public router: Router, private FinancialCoachService: FinancialCoachService, private budgetService: BudgetService, private emailService: EmailService, private financialInsightsService: FinancialInsightsService, private http: HttpClient) { }
+  constructor(public router: Router, private FinancialCoachService: FinancialCoachService, private budgetService: BudgetService, private emailService: EmailService, private financialInsightsService: FinancialInsightsService, private spamDetectionService: SpamDetectionService, private http: HttpClient) { }
 
   ngOnInit() {
     this.latestIncome = 0;  // Initialize with 0
@@ -77,9 +74,7 @@ export class DashboardComponent implements OnInit {
       console.log('Expenses:', data);
     });
   }
-  // updateIncome(): void {
-  //   this.income1 = this.budgetService.getTotalIncomeForMonth1(this.currentMonth1);
-  // }
+
 
   initializeDashboard() {
     this.populateLastMonthsIncome();
@@ -99,7 +94,7 @@ export class DashboardComponent implements OnInit {
 
         if (response && Array.isArray(response.emails)) {
           this.latestEmails = response.emails;
-
+          // this.classifyEmailsAsSpam();
           // Log each email's structure to inspect its content
           this.latestEmails.forEach(email => {
             console.log('Email Content:', email);
@@ -136,10 +131,20 @@ export class DashboardComponent implements OnInit {
     // For example, setting this to a property that is used in the template
     this.emailDetails = emailDetails;
   }
-
-
-
-
+  // classifyEmailsAsSpam() {
+  //   this.latestEmails.forEach((email) => {
+  //     this.spamDetectionService.checkSpam(email.content).subscribe(
+  //       (result) => {
+  //         if (result.isSpam) {
+  //           this.spamEmails.push(email);  // Store spam emails separately
+  //         }
+  //       },
+  //       (error) => {
+  //         console.error('Failed to classify email:', error);
+  //       }
+  //     );
+  //   });
+  // }
 
   async populateLastMonthsIncome() {
     const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August'];
@@ -239,9 +244,6 @@ export class DashboardComponent implements OnInit {
     return this.currentMonthLoan;
   }
 
-  // get currentMonthSavings(): number {
-  //   return this.totalCurrentMonthIncome - this.totalCurrentMonthExpense;
-  // }
   get currentMonthSavings(): number {
     const savings = this.totalCurrentMonthIncome - this.totalCurrentMonthExpense;
 

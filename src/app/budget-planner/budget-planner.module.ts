@@ -23,6 +23,9 @@ import { BudgetService } from '../services/budget.service';
 import { AuthService } from '../auth.service';
 import { IncomeComponent } from './income/income.component';
 import { ExpenseComponent } from './expense/expense.component';
+import { EmailCheckerComponent } from '../components/email-checker/email-checker.component';
+import { EmailService } from '../email.service';
+import { SpamDetectionService } from '../services/spam-detection.service';
 
 
 @NgModule({
@@ -30,7 +33,8 @@ import { ExpenseComponent } from './expense/expense.component';
         DashboardComponent,
 
         IncomeComponent,
-        ExpenseComponent
+        ExpenseComponent,
+        EmailCheckerComponent
     ],
     imports: [
         CommonModule,  // Use CommonModule
@@ -51,7 +55,7 @@ import { ExpenseComponent } from './expense/expense.component';
     providers: [
         FinancialInsightsService,
         FinancialCoachService,
-        BudgetService, AuthService
+        BudgetService, AuthService, SpamDetectionService
     ]
 })
 export class BudgetPlannerModule { }

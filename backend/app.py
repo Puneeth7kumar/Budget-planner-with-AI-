@@ -25,7 +25,19 @@ load_dotenv()
 
 app = Flask(__name__)
 CORS(app)
+spam_model = joblib.load('spam_model.pkl')
+vectorizer = joblib.load('vectorizer.pkl')
 
+def predict_spam(text):
+    text_vector = vectorizer.transform([text])  # Vectorize the input
+    return spam_model.predict(text_vector)[0]
+
+@app.route('/classify-email', methods=['POST'])
+def classify_email():
+    data = request.json
+    email_content = data['content']
+    prediction = predict_spam(email_content)
+    return jsonify({"classification": prediction})
 
 month_mapping = {month: idx + 1 for idx, month in enumerate([
     'January', 'February', 'March', 'April', 'May', 'June',

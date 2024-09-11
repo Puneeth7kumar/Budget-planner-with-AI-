@@ -1,0 +1,15 @@
+@echo off
+setlocal enabledelayedexpansion
+
+rem Change this to your directory
+set "dir=D:\budget_planner\backend\20030228_spam\spam"
+
+cd /d "%dir%"
+
+for %%f in (*.7848dde101aa985090474a91ec93fcf0) do (
+    set "filename=%%~nf.txt"
+    ren "%%f" "!filename!"
+)
+
+echo Done renaming files.
+pause

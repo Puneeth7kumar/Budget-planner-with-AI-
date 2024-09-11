@@ -193,5 +193,27 @@
     <div *ngIf="!latestEmails.length">
       <p>No new emails</p>
     </div>
+    <div class="card">
+      <div class="card-header">
+        <h3 class="email-list-title">Detected Spam Emails</h3>
+      </div>
+      <div class="card-body" *ngIf="spamEmails.length; else noSpam">
+        <ul class="email-list">
+          <li *ngFor="let email of spamEmails" class="email-list-item">
+            <div class="email-header">
+              <strong class="email-from">{{ email.from }}</strong>
+              <span class="email-subject">{{ email.subject }}</span>
+            </div>
+            <div class="email-body">
+              <span class="email-content">{{ email.content }}</span>
+            </div>
+          </li>
+        </ul>
+      </div>
+      <ng-template #noSpam>
+        <p>No spam emails detected.</p>
+      </ng-template>
+    </div>
+
   </div>
 </div>
