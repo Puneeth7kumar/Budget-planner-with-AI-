@@ -104,22 +104,11 @@ export class BudgetService {
   };
 
   private loans: { [key: string]: Loan[] } = {
-    // January: [
-    //   { amount: 5000, interestRate: 3.5, term: 36, loanType: 'Personal', documents: File | null, income: 60000, existingCreditScore: 720, employmentStatus: 'Employed' },
-    //   { amount: 10000, interestRate: 4.2, term: 48, loanType: 'Auto', documents: 'Pay Stubs', income: 55000, existingCreditScore: 680, employmentStatus: 'Self-Employed' },
-    // ],
-    // February: [
-    //   { amount: 7000, interestRate: 2.9, term: 24, loanType: 'Education', documents: 'ID Proof', income: 45000, existingCreditScore: 700, employmentStatus: 'Student' },
-    //   { amount: 15000, interestRate: 5.0, term: 60, loanType: 'Home', documents: 'Property Papers', income: 75000, existingCreditScore: 750, employmentStatus: 'Employed' },
-    // ],
-    // March: [
-    //   { amount: 12000, interestRate: 3.7, term: 36, loanType: 'Business', documents: 'Tax Returns', income: 80000, existingCreditScore: 710, employmentStatus: 'Business Owner' },
-    //   { amount: 5000, interestRate: 4.0, term: 12, loanType: 'Personal', documents: 'Bank Statements', income: 52000, existingCreditScore: 690, employmentStatus: 'Employed' },
-    // ],
+
   };
 
-  private incomeSubject = new BehaviorSubject<{ [key: string]: any[] }>(this.incomes);
-  private expenseSubject = new BehaviorSubject<{ [key: string]: any[] }>(this.expenses);
+  private incomeSubject = new BehaviorSubject<number>(0);
+  private expenseSubject = new BehaviorSubject<number>(0);
   private todoTransactionSubject = new BehaviorSubject<{ [key: string]: any[] }>(this.todoTransactions);
   private latestIncomeSubject = new BehaviorSubject<number | undefined>(undefined);
   private latestExpenseSubject = new BehaviorSubject<number | undefined>(undefined);
@@ -131,6 +120,8 @@ export class BudgetService {
   latestIncome$ = this.latestIncomeSubject.asObservable();
   latestExpense$ = this.latestExpenseSubject.asObservable();
 
+
+
   constructor(private http: HttpClient, private firestore: AngularFirestore, private authService: AuthService) { }
   fetchLatestData() {
     this.http.get<{ latestIncome: number, latestExpense: number }>('http://localhost:5000/latest-data')
@@ -140,23 +131,6 @@ export class BudgetService {
       });
   }
 
-  // getIncomesForMonth(month: string): any[] {
-  //   return this.incomes[month] || [];
-
-  // }
-
-  // addIncome(month: string, income: any): void {
-  //   if (!this.incomes[month]) {
-  //     this.incomes[month] = [];
-  //   }
-  //   this.incomes[month].push(income);
-  //   this.incomeSubject.next(this.incomes);
-  // }
-
-  // getTotalIncomeForMonth(month: string): number {
-
-  //   return this.getIncomesForMonth(month).reduce((total, income) => total + income.amount, 0);
-  // }
   addIncome(month: string, incomeData: Income): Observable<void> {
     return this.authService.getUser().pipe(
       switchMap(user => {
@@ -191,49 +165,7 @@ export class BudgetService {
       map(incomes => incomes.reduce((total, income) => total + income.amount, 0))
     );
   }
-  // getTotalIncomeForMonth(month: string): Observable<number> {
-  //   if (isPlatformBrowser(this.platformId)) {
-  //     // Access localStorage only if on the browser platform
-  //     const cachedTotal = localStorage.getItem(`${month}-income`);
-  //     if (cachedTotal) {
-  //       return of(parseFloat(cachedTotal));
-  //     }
-  //   }
-  //   // Fetch and calculate from API if not on browser or no cache
-  //   return this.getIncomesForMonth(month).pipe(
-  //     map(incomes => {
-  //       const total = incomes.reduce((acc, income) => acc + income.amount, 0);
-  //       if (isPlatformBrowser(this.platformId)) {
-  //         localStorage.setItem(`${month}-income`, total.toString());
-  //       }
-  //       return total;
-  //     })
-  //   );
-  // }
-  // updateTotalIncomeForMonth(month: string, newIncome: number): void {
-  //   if (isPlatformBrowser(this.platformId)) {
-  //     this.getTotalIncomeForMonth(month).subscribe(currentTotal => {
-  //       const updatedTotal = currentTotal + newIncome;
-  //       localStorage.setItem(`${month}-income`, updatedTotal.toString());
-  //       // Here, ensure you don't have any subscription that might cause a loop
-  //     });
-  //   }
-  // }
-  // addExpense(month: string, expense: { expenseType: string, expenseAmount: number }) {
-  //   if (!this.expenses[month]) {
-  //     this.expenses[month] = [];
-  //   }
-  //   this.expenses[month].push(expense);
-  //   this.expenseSubject.next(this.expenses);
-  // }
 
-  // getExpensesForMonth(month: string): any[] {
-  //   return this.expenses[month] || [];
-  // }
-
-  // getTotalExpenseForMonth(month: string): number {
-  //   return this.getExpensesForMonth(month).reduce((total, expense) => total + expense.expenseAmount, 0);
-  // }
   addExpense(month: string, expenseData: Expense): Observable<void> {
     return this.authService.getUser().pipe(
       switchMap(user => {
@@ -271,33 +203,6 @@ export class BudgetService {
     );
   }
 
-  // getTotalExpenseForMonth(month: string): Observable<number> {
-  //   if (isPlatformBrowser(this.platformId)) {
-  //     const cachedTotal = localStorage.getItem(`${month}-expense`);
-  //     if (cachedTotal) {
-  //       return of(parseFloat(cachedTotal));
-  //     }
-  //   }
-  //   return this.getExpensesForMonth(month).pipe(
-  //     map(expenses => {
-  //       const total = expenses.reduce((acc, expense) => acc + expense.expenseAmount, 0);
-  //       if (isPlatformBrowser(this.platformId)) {
-  //         localStorage.setItem(`${month}-expense`, total.toString());
-  //       }
-  //       return total;
-  //     })
-  //   );
-  // }
-
-  // updateTotalExpenseForMonth(month: string, newExpense: number): void {
-  //   this.getTotalExpenseForMonth(month).subscribe(currentTotal => {
-  //     const updatedTotal = currentTotal + newExpense;
-  //     if (isPlatformBrowser(this.platformId)) {
-  //       localStorage.setItem(`${month}-expense`, updatedTotal.toString());
-  //     }
-  //     // Optionally, emit an event or update a state observable here if needed
-  //   });
-  // }
 
   getTodoTransactionsForMonth(month: string): any[] {
     return this.todoTransactions[month] || [];
@@ -337,6 +242,84 @@ export class BudgetService {
   }
 
 
+  private currentMonth = new Date().toLocaleString('default', { month: 'long' });
+  // private incomeSubject = new BehaviorSubject<number>(0);
+  // private expenseSubject = new BehaviorSubject<number>(0);
+  updateIncomeForCurrentMonth(amount: number): void {
+    this.authService.getUser().subscribe((user) => {
+      if (user) {
+        const userId = user.uid;
+        const month = new Date().getMonth(); // Get current month dynamically
+
+        // First, fetch the current total income for the month
+        this.firestore
+          .collection(`users/${userId}/incomes`, (ref) => ref.where('month', '==', month))
+          .get()
+          .subscribe((snapshot) => {
+            let currentTotal = 0;
+
+            // Calculate current total income by summing up existing records
+            if (!snapshot.empty) {
+              currentTotal = snapshot.docs.reduce(
+                (total, doc) => total + (doc.data() as { amount: number }).amount,
+                0
+              );
+            }
+
+            // Add the new income amount
+            currentTotal += amount;
+
+            // Update the BehaviorSubject with the new total income
+            this.incomeSubject.next(currentTotal);
+
+            // Store the updated income total in Firestore
+            this.firestore
+              .doc(`users/${userId}/monthlySummary/${month}`)
+              .set({ totalIncome: currentTotal }, { merge: true })
+              .then(() => {
+                console.log('Income updated successfully in Firestore');
+              })
+              .catch((error) => {
+                console.error('Error updating income in Firestore:', error);
+              });
+          });
+      }
+    });
+  }
+
+
+
+  updateExpenseForCurrentMonth(amount: number): void {
+    this.authService.getUser().subscribe((user) => {
+      if (user) {
+        const userId = user.uid;
+        const month = this.currentMonth;
+
+        this.firestore
+          .collection(`users/${userId}/expenses`, (ref) =>
+            ref.where('month', '==', month)
+          )
+          .get()
+          .subscribe((snapshot) => {
+            let currentTotal = snapshot.docs.reduce(
+              (total, doc) => total + (doc.data() as { expenseAmount: number }).expenseAmount,
+
+              0
+            );
+
+            currentTotal += amount;
+
+            // Update BehaviorSubject
+            this.expenseSubject.next(currentTotal);
+
+            // Optionally store new total
+            this.firestore
+              .doc(`users/${userId}/monthlySummary/${month}`)
+              .set({ totalExpense: currentTotal }, { merge: true });
+          });
+      }
+    });
+  }
 
 
 }

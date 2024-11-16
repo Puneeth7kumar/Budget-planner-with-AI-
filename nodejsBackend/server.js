@@ -21,7 +21,7 @@ const imapConfig = {
 
 app.get('/fetch-emails', async (req, res) => {
     const page = parseInt(req.query.page) || 1;
-    const limit = parseInt(req.query.limit) || 100;
+    const limit = parseInt(req.query.limit) || 500;
 
     try {
         const connection = await imaps.connect(imapConfig);
@@ -79,21 +79,8 @@ app.get('/fetch-emails', async (req, res) => {
         res.status(500).send('Failed to fetch emails');
     }
 });
-// app.post('/check-spam', async (req, res) => {
-//     const emailContent = req.body.content;
 
-//     try {
-//         const response = await axios.post('http://localhost:5000/classify-email', {
-//             content: emailContent
-//         });
 
-//         const isSpam = response.data.classification === 'spam';
-//         res.json({ isSpam });
-//     } catch (error) {
-//         console.error('Error checking spam:', error);
-//         res.status(500).send('Error checking spam');
-//     }
-// });
 app.listen(port, () => {
     console.log(`Server is running on http://localhost:${port}`);
 });

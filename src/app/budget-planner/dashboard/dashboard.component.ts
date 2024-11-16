@@ -41,7 +41,9 @@ export class DashboardComponent implements OnInit {
   latestEmails: any[] = [];
   emailDetails: any[] = [];
 
-
+  currentMonth: string = new Date().toLocaleString('default', { month: 'long' });
+  totalIncome: number = 0;
+  totalExpense: number = 0;
   constructor(public router: Router, private FinancialCoachService: FinancialCoachService, private budgetService: BudgetService, private emailService: EmailService, private financialInsightsService: FinancialInsightsService, private spamDetectionService: SpamDetectionService, private http: HttpClient) { }
 
   ngOnInit() {
@@ -73,6 +75,13 @@ export class DashboardComponent implements OnInit {
     this.financialInsightsService.getExpenses().subscribe(data => {
       console.log('Expenses:', data);
     });
+    this.budgetService.income$.subscribe((income) => {
+      this.totalIncome = income;
+    });
+
+    this.budgetService.expense$.subscribe((expense) => {
+      this.totalExpense = expense;
+    });
   }
 
 
@@ -87,34 +96,43 @@ export class DashboardComponent implements OnInit {
     this.getFinancialAdvice();
     this.getFinancialAdvice1();
   }
+  emailIncome: number = 0;
+  emailExpenses: number = 0;
+  private _totalCurrentMonthIncome: number = 0; // make it private
+  private _totalCurrentMonthExpense: number = 0;
+
+  // Getter methods to access the values
+  get totalCurrentMonthIncome(): number {
+    return this._totalCurrentMonthIncome;
+
+  }
+
+  get totalCurrentMonthExpense(): number {
+    return this._totalCurrentMonthExpense;
+  }
+
   fetchEmails() {
     this.emailService.fetchEmails().subscribe(
       (response) => {
         console.log('Fetched Emails:', response);
-
+  
         if (response && Array.isArray(response.emails)) {
           this.latestEmails = response.emails;
-          // this.classifyEmailsAsSpam();
-          // Log each email's structure to inspect its content
-          this.latestEmails.forEach(email => {
-            console.log('Email Content:', email);
-          });
-
+  
           // Process the email content to extract financial information
           const { credited, debited, emailDetails } = this.emailService.processEmailContent(this.latestEmails);
-
-          //Update income and expense totals
+  
+          // Update income and expense totals based on the emails
           if (credited > 0) {
-            this.updateIncome(credited);
+            this.updateIncomeFromEmail(credited);
           }
-
+  
           if (debited > 0) {
-            this.updateExpense(debited);
+            this.updateExpenseFromEmail(debited);
           }
-
+  
           // Display the email details with amounts on the dashboard
           this.displayEmailDetails(emailDetails);
-
         } else {
           console.error('Unexpected format: response.emails should be an array:', response);
         }
@@ -124,6 +142,20 @@ export class DashboardComponent implements OnInit {
       }
     );
   }
+  processEmailMessage(emailContent: string): void {
+    const creditMatch = emailContent.match(/(\d+)\scredited/);
+    const debitMatch = emailContent.match(/(\d+)\sdebited/);
+
+    if (creditMatch) {
+      const creditAmount = parseInt(creditMatch[1], 10);
+      this.budgetService.updateIncomeForCurrentMonth(creditAmount);
+    }
+
+    if (debitMatch) {
+      const debitAmount = parseInt(debitMatch[1], 10);
+      this.budgetService.updateExpenseForCurrentMonth(debitAmount);
+    }
+  }
 
   // New method to display email details on the dashboard
   displayEmailDetails(emailDetails: any[]) {
@@ -131,20 +163,7 @@ export class DashboardComponent implements OnInit {
     // For example, setting this to a property that is used in the template
     this.emailDetails = emailDetails;
   }
-  // classifyEmailsAsSpam() {
-  //   this.latestEmails.forEach((email) => {
-  //     this.spamDetectionService.checkSpam(email.content).subscribe(
-  //       (result) => {
-  //         if (result.isSpam) {
-  //           this.spamEmails.push(email);  // Store spam emails separately
-  //         }
-  //       },
-  //       (error) => {
-  //         console.error('Failed to classify email:', error);
-  //       }
-  //     );
-  //   });
-  // }
+
 
   async populateLastMonthsIncome() {
     const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August'];
@@ -165,25 +184,21 @@ export class DashboardComponent implements OnInit {
       })
     );
   }
-  // populateLastMonthsLoans() {
-  //   const months = ['January', 'February', 'March']; // Add more months as needed
-  //   this.lastMonthsLoans = months.map(month => ({
-  //     month,
-  //     total: this.budgetService.getTotalLoanForMonth(month)
-  //   }));
-  // }
 
   updateCurrentMonthTotals() {
     const currentMonth = this.getCurrentMonth();
+
+    // Get income for the current month
     this.budgetService.getTotalIncomeForMonth(currentMonth).subscribe(income => {
-      this.currentMonthIncome = income || 0;  // Handle undefined by defaulting to 0
+      this.currentMonthIncome = income || 0;
+      this._totalCurrentMonthIncome = this.currentMonthIncome;  // Update total income
     });
 
+    // Get expense for the current month
     this.budgetService.getTotalExpenseForMonth(currentMonth).subscribe(expense => {
       this.currentMonthExpense = expense || 0;
+      this._totalCurrentMonthExpense = this.currentMonthExpense;  // Update total expense
     });
-    const loans = this.budgetService.getLoansForMonth(currentMonth);
-    this.currentMonthLoan = loans.reduce((total, loan) => total + loan.amount, 0);
   }
 
   updateCurrentMonthTodoTransactions() {
@@ -233,30 +248,30 @@ export class DashboardComponent implements OnInit {
     });
   }
 
-  get totalCurrentMonthIncome(): number {
-    return this.currentMonthIncome;
-  }
+  // get totalCurrentMonthIncome(): number {
+  //   return this.currentMonthIncome;
+  // }
 
-  get totalCurrentMonthExpense(): number {
-    return this.currentMonthExpense;
-  }
+  // get totalCurrentMonthExpense(): number {
+  //   return this.currentMonthExpense;
+  // }
   get totalCurrentMonthLoan(): number {
     return this.currentMonthLoan;
   }
 
   get currentMonthSavings(): number {
-    const savings = this.totalCurrentMonthIncome - this.totalCurrentMonthExpense;
+  const totalExpenses = this.totalCurrentMonthExpense + this.emailExpenses; // Add email expenses to total expenses
+  const savings = this.totalCurrentMonthIncome + this.emailIncome - totalExpenses; // Calculate savings
 
-    if (savings < 0 && this.previousYearSavings > 0) {
-      this.usedPreviousSavings = Math.abs(savings) > this.previousYearSavings ? this.previousYearSavings : Math.abs(savings);
-      return this.previousYearSavings - this.usedPreviousSavings;
-    } else {
-      this.usedPreviousSavings = 0;
-    }
-
-    return savings;
+  if (savings < 0 && this.previousYearSavings > 0) {
+    this.usedPreviousSavings = Math.abs(savings) > this.previousYearSavings ? this.previousYearSavings : Math.abs(savings);
+    return this.previousYearSavings - this.usedPreviousSavings;
+  } else {
+    this.usedPreviousSavings = 0;
   }
 
+  return savings;
+}
 
   getCurrentMonth(): string {
     const currentDate = new Date();
@@ -277,16 +292,33 @@ export class DashboardComponent implements OnInit {
   onLoan() {
     this.router.navigate(['/budget-planner/loan']);
   }
-  updateIncome(amount: number) {
-    this.latestIncome += amount;
+  // updateIncomeFromEmail(amount: number) {
+  //   this.currentMonthIncome += amount;
+  //   this._totalCurrentMonthIncome += amount;
+  //   this.budgetService.updateIncomeForCurrentMonth(this._totalCurrentMonthIncome); // Optional: Update service if needed
+  //   console.log(`Income updated by email: +${amount}. Total: ${this._totalCurrentMonthIncome}`);
+  // }
+  
+  // updateExpenseFromEmail(amount: number) {
+  //   this.currentMonthExpense += amount;
+  //   this._totalCurrentMonthExpense += amount;
+  //   this.budgetService.updateExpenseForCurrentMonth(this._totalCurrentMonthExpense); // Optional: Update service if needed
+  //   console.log(`Expense updated by email: +${amount}. Total: ${this._totalCurrentMonthExpense}`);
+  // }
+  updateIncomeFromEmail(amount: number) {
+    this.emailIncome=amount;
     this.currentMonthIncome += amount;
-    this.updateCurrentMonthTotals();
+    this._totalCurrentMonthIncome += amount;  // Increment the total income with the new amount
+    this.budgetService.updateIncomeForCurrentMonth(this._totalCurrentMonthIncome);  // Update the service with new total income
+    console.log(`Income updated by email: +${amount}. New total: ${this._totalCurrentMonthIncome}`);
   }
-
-  updateExpense(amount: number) {
-    this.latestExpense += amount;
-    this.currentMonthExpense += amount;
-    this.updateCurrentMonthTotals();
+  
+  updateExpenseFromEmail(amount: number) {
+    this.emailExpenses=amount;
+    this.currentMonthIncome += amount;
+    this._totalCurrentMonthExpense += amount;  // Increment the total expense with the new amount
+    this.budgetService.updateExpenseForCurrentMonth(this._totalCurrentMonthExpense);  // Update the service with new total expense
+    console.log(`Expense updated by email: +${amount}. New total: ${this._totalCurrentMonthExpense}`);
   }
 
 }
